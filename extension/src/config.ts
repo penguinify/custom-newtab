@@ -8,16 +8,23 @@ export function defaultUserConfig(): UserConfig {
         },
         colors: {
             textColor: "#FFFFFF"
-        }
+        },
+        tabTitle: "New Tab",
+        tabFaviconUrl: "",
+        fontFamily: "Times New Roman, serif",
+        hideOptionsButtonUnlessHovered: false
 
     }
 }
 
 export function isUserConfig(obj: any): obj is UserConfig {
     return obj &&
-        typeof obj === "object" &&
-        "background" in obj &&
-        "colors" in obj;
+        typeof obj === 'object' &&
+        'background' in obj &&
+        'colors' in obj &&
+        'tabTitle' in obj &&
+        'tabFaviconUrl' in obj &&
+        'fontFamily' in obj;
 }
 
 export function saveUserConfig(user_config: UserConfig): void {
@@ -30,6 +37,27 @@ export function saveUserConfig(user_config: UserConfig): void {
     chrome.storage.sync.set({ user_config: user_config }, () => {
         console.info("User config saved!")
     });
+}
+
+export async function setPathInUserConfig<T>(path: string[], value: T): Promise<void> {
+    let user_config = await getUserConfig();
+
+    let current = user_config;
+    for (let i = 0; i < path.length - 1; i++) {
+        const key = path[i];
+        // If the current key doesn't exist or isn't an object, create an empty object
+        if (!current[key] || typeof current[key] !== 'object') {
+            current[key] = {};
+        }
+        current = current[key];
+    }
+    // Set the value at the final key
+    current[path[path.length - 1]] = value;
+
+    // Save the updated user config
+    saveUserConfig(user_config);
+
+
 }
 
 export async function getUserConfig(): Promise<UserConfig> {
@@ -70,3 +98,4 @@ async function getLocalUserConfig(): Promise<UserConfig> {
         return default_config;
     }
 }
+

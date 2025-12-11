@@ -3,6 +3,7 @@ import { AsyncRoute, Components, Elements, Pen, PenArray } from "../framework/pe
 import { getUserConfig } from "../config";
 import { OptionTab } from "../ui/components/optionTab.component";
 import { OptionNavigation } from "../ui/components/optionNavigation.component";
+import { applyBackgroundColor, setFavicon, setTabTitle } from "../utils";
 
 export class Options extends AsyncRoute {
     pens: PenArray = new PenArray();
@@ -20,8 +21,14 @@ export class Options extends AsyncRoute {
 
     }
 
+
     async renderAsync(): Promise<PenArray> {
         this.settings = await getUserConfig();
+
+        document.body.style.setProperty('color', this.settings.colors.textColor || '#FFFFFF', 'important');
+
+        setTabTitle(this.settings.tabTitle + " - options" || 'options');
+        setFavicon(this.settings.tabFaviconUrl || '');
 
         let pens = PenArray.fromHTML(
             `
@@ -33,11 +40,10 @@ export class Options extends AsyncRoute {
 
         let container = pens.getById('options-container');
 
-        this._applyBackgroundColor(container);
+        applyBackgroundColor(container, this.settings);
 
 
         this._createOptionsTabs(pens);
-
 
 
         return pens;
@@ -45,28 +51,131 @@ export class Options extends AsyncRoute {
 
     private _createOptionsTabs(pens: PenArray) {
 
-        const generalTab = new OptionTab(new PenArray(), pens.getById('newtab-container'), 'general');
-        const appearanceTab = new OptionTab(new PenArray(), pens.getById('newtab-container'), 'appearance');
-        const advancedTab = new OptionTab(new PenArray(), pens.getById('newtab-container'), 'advanced');
-
-        this.tabs = [
-        {
-            id: 'general',
-            label: 'General',
-            optionTab: generalTab
-        },
+        const generalTab = new OptionTab([
             {
-            id: 'appearance',
-            label: 'Appearance',
-            optionTab: appearanceTab
+                type: 'text',
+                label: 'Tab title',
+                description: 'Set the title of the new tab page.',
+                defaultValue: this.settings.tabTitle,
+                path: ['tabTitle']
             },
             {
-            id: 'advanced',
-            label: 'Advanced',
-            optionTab: advancedTab
+                type: 'text',
+                label: 'Favicon URL',
+                description: 'Set the URL of the favicon for the new tab page.',
+                defaultValue: this.settings.tabFaviconUrl,
+                path: ['tabFaviconUrl']
+            },
+            {
+                type: 'text',
+                label: 'Font Family',
+                description: 'Set the font family for the new tab page.',
+                defaultValue: this.settings.fontFamily,
+                path: ['fontFamily']
+            },
+            {
+                type: 'checkbox',
+                label: 'Hide options button unless hovered',
+                description: 'Hide the options button on the new tab page unless the mouse is hovering over it.',
+                defaultValue: this.settings.hideOptionsButtonUnlessHovered,
+                path: ['hideOptionsButtonUnlessHovered']
+            }
+        ], pens.getById('newtab-container'), 'general');
+        const appearanceTab = new OptionTab([
+            {
+                type: 'colorpicker',
+                label: 'Text Color',
+                description: 'Select the text color for the new tab page.',
+                defaultValue: this.settings.colors.textColor,
+                path: ['colors', 'textColor']
+            },
+            {
+                type: 'dropdown',
+                label: 'Background Type',
+                description: 'Select the type of background for the new tab page.',
+                options: ['color', 'image', 'video', 'customcss'],
+                defaultValue: this.settings.background.type,
+                path: ['background', 'type'],
+                subOptions: {
+                    'color': [
+                        {
+                            type: 'colorpicker',
+                            label: 'Background Color',
+                            description: 'Select the background color for the new tab page.',
+                            defaultValue: this.settings.background.type === 'color' ? this.settings.background.hex : '#000000',
+                            path: ['background', 'hex']
+                        }
+                    ],
+                    'image': [
+                        {
+                            type: 'text',
+                            label: 'Background Image URL',
+                            description: 'Enter the URL of the background image.',
+                            defaultValue: this.settings.background.type === 'image' ? this.settings.background.url : '',
+                            path: ['background', 'url']
+                        },
+                        {
+                            type: 'text',
+                            label: 'Additional CSS',
+                            description: 'Enter additional CSS to apply to the background image.',
+                            defaultValue: this.settings.background.type === 'image' ? this.settings.background.css : '',
+                            path: ['background', 'css']
+                        }
+                    ],
+                    'video': [
+                        {
+                            type: 'file',
+                            label: 'Background Video',
+                            description: 'Upload the file of the youtube video',
+                            defaultValue: '',
+                            fileValue: '',
+                            path: ['background_video']
+                        },
+                        {
+                            type: 'colorpicker',
+                            label: 'Fallback Color',
+                            description: 'Select the fallback color to display if the video fails to load.',
+                            defaultValue: this.settings.background.type === 'video' ? this.settings.background.fallbackColor : '#000000',
+                            path: ['background', 'fallbackColor']
+                        }
+                    ],
+                    'customcss': [
+                        {
+                            type: 'text',
+                            label: 'Custom CSS',
+                            description: 'Enter custom CSS for the new tab page.',
+                            defaultValue: this.settings.background.type === 'customcss' ? this.settings.background.css : '',
+                            path: ['background', 'css']
+                        }
+                    ]
+                }
+
+            }
+        ], pens.getById('newtab-container'), 'appearance');
+        const advancedTab = new OptionTab([], pens.getById('newtab-container'), 'advanced');
+
+        this.tabs = [
+            {
+                id: 'general',
+                label: 'General',
+                optionTab: generalTab
+            },
+            {
+                id: 'appearance',
+                label: 'Appearance',
+                optionTab: appearanceTab
+            },
+            {
+                id: 'advanced',
+                label: 'Advanced',
+                optionTab: advancedTab
             }
         ]
-        let optionNavigation = new OptionNavigation(this.tabs, pens.getById('newtab-container'), 'general');
+
+        const searchParams = new URLSearchParams(window.location.search);
+        const activeTabId = searchParams.get('tab') || 'general';
+
+        let optionNavigation = new OptionNavigation(this.tabs, pens.getById('newtab-container'), activeTabId);
         this.components.add(optionNavigation);
 
         this.components.add(generalTab);
@@ -76,37 +185,13 @@ export class Options extends AsyncRoute {
 
     }
 
-
-
-
-
-    private _applyBackgroundColor(pen: Pen<Elements>) {
-        switch (this.settings.background.type) {
-            case "color":
-                pen.element.style.backgroundColor = this.settings.background.hex;
-                break;
-            case "image":
-                pen.element.style.backgroundImage = `url('${this.settings.background.url}')`;
-                pen.element.style.backgroundSize = 'cover';
-                pen.element.style.backgroundPosition = 'center';
-                break;
-            case "video":
-                let videoPen = PenArray.fromHTML(
-                    `
-
-<video autoplay muted loop id="background-video" class="fixed top-0 left-0 w-full h-full object-cover z-0">
-<source src="${this.settings.background.url}" type="video/mp4">
-</video>
-
-`);
-                videoPen[0].setParent(pen);
-                break;
-            case "customcss":
-                pen.element.style.cssText = this.settings.background.css;
-                break;
-        }
-
+    onRoute(): void {
+        let main_element = document.body.children[0] as HTMLElement;
+        main_element.style.fontFamily = this.settings.fontFamily || 'Arial, sans-serif';
     }
+
+
+
 
 
 

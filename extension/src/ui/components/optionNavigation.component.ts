@@ -7,6 +7,7 @@ export class OptionNavigation implements Component {
     parent: Pen<Elements>;
     currentTabId: string = '';
     tabs: TabWrapper[] = [];
+    searchParamaters: URLSearchParams = new URLSearchParams(window.location.search);
 
     constructor(tabs: TabWrapper[], parent: Pen<Elements>, defaultTabId: string) {
         this.tabs = tabs;
@@ -14,10 +15,10 @@ export class OptionNavigation implements Component {
         this.parent = parent;
 
     }
-    
+
     render(): PenArray {
         let container = PenArray.fromHTML(`
-            <div id="option-navigation" class="option-navigation flex flex-col border-r border-white mr-4 p-4 text-lg">
+            <div id="option-navigation" class="option-navigation flex flex-col border-r border-white mr-4 p-4 text-xl">
             </div>
         `);
         let containerPen = container.getById('option-navigation');
@@ -25,7 +26,7 @@ export class OptionNavigation implements Component {
 
         this.tabs.forEach(tab => {
             let tabButton = PenArray.fromHTML(`
-                <button id="tab-button-${tab.id}" class="px-4 py-2 hover:underline decoration-dotted text-white decoration-white underline-offset-2 text-left">
+                <button id="tab-button-${tab.id}" class="px-4 py-2 hover:underline decoration-dotted  decoration-white underline-offset-2 text-left">
                     ${tab.label}
                 </button>
             `);
@@ -50,9 +51,12 @@ export class OptionNavigation implements Component {
         this.currentTabId = tabId;
         this.tabs.find(tab => tab.id === tabId)?.optionTab.show();
 
+        this.searchParamaters.set('tab', tabId);
+        window.history.replaceState({}, '', `${window.location.pathname}?${this.searchParamaters.toString()}`);
+
         this._updateActiveTabButton();
 
-        
+
     }
 
     private _updateActiveTabButton(): void {
