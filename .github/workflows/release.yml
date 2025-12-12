@@ -32,7 +32,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/minimal-newtab.crx
-            dist/extension.zip
+            ./dist/minimal-newtab.crx
+            ./dist/extension.zip
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
