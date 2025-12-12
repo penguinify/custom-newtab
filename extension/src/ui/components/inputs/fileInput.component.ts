@@ -1,8 +1,8 @@
-import { setPathInUserConfig } from "../../config";
-import { saveString } from "../../database";
-import { Component, Elements, Pen, PenArray } from "../../framework/penexutils";
-import { SettingOptions } from "../../types";
-import { convertArrayBufferToBase64, generateRandomId } from "../../utils";
+import { setPathInUserConfig } from "../../../config";
+import { saveString } from "../../../database";
+import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
+import { SettingOptions } from "../../../types";
+import { convertArrayBufferToBase64, generateRandomId } from "../../../utils";
 
 export class FileInput implements Component {
     pens: PenArray = new PenArray();
@@ -20,7 +20,10 @@ export class FileInput implements Component {
         } else {
             this.settings = options;
         }
+
     }
+
+
 
     render(): PenArray {
         let container = PenArray.fromHTML(`
@@ -38,13 +41,12 @@ export class FileInput implements Component {
 
         this.pens.push(...container);
 
-        this.value = this.settings.defaultValue || '';
+        this.value = this.settings.defaultValue as string || '';
 
         return this.pens;
     }
 
     private _onFileChange(event: Event): void {
-        console.log('File input change event:', event);
         const input = event.target as HTMLInputElement;
         if (input.files && input.files.length > 0) {
 
@@ -52,8 +54,6 @@ export class FileInput implements Component {
             const reader = new FileReader();
             reader.onload = () => {
                 this.fileValue = convertArrayBufferToBase64(reader.result as ArrayBuffer);
-                console.log('File loaded', this.fileValue);
-
                 this._saveFile();
             };
             reader.readAsArrayBuffer(input.files[0]);

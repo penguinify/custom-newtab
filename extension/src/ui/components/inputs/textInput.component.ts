@@ -1,7 +1,7 @@
-import { setPathInUserConfig } from "../../config";
-import { Component, Elements, Pen, PenArray } from "../../framework/penexutils";
-import { SettingOptions } from "../../types";
-import { generateRandomId } from "../../utils";
+import { setPathInUserConfig } from "../../../config";
+import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
+import { SettingOptions } from "../../../types";
+import { generateRandomId } from "../../../utils";
 
 
 export class TextInput implements Component {

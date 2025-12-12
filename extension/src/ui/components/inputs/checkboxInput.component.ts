@@ -1,7 +1,7 @@
-import { setPathInUserConfig } from "../../config";
-import { Component, Elements, Pen, PenArray } from "../../framework/penexutils";
-import { SettingOptions } from "../../types";
-import { generateRandomId } from "../../utils";
+import { setPathInUserConfig } from "../../../config";
+import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
+import { SettingOptions } from "../../../types";
+import { generateRandomId } from "../../../utils";
 
 export class CheckboxInput implements Component {
     pens: PenArray = new PenArray();
@@ -9,6 +9,7 @@ export class CheckboxInput implements Component {
     settings: SettingOptions;
     private value: boolean = false;
     id: string = generateRandomId();
+
 
     constructor(parent: Pen<Elements>, options: SettingOptions) {
         this.parent = parent;
@@ -18,6 +19,8 @@ export class CheckboxInput implements Component {
             this.settings = options;
         }
     }
+
+
 
     render(): PenArray {
         let container = PenArray.fromHTML(`
@@ -42,6 +45,8 @@ export class CheckboxInput implements Component {
         return this.pens;
     }
 
+
+
     private _onCheckboxChange(event: Event): void {
         const input = event.target as HTMLInputElement;
         this.value = input.checked;
@@ -60,5 +65,6 @@ export class CheckboxInput implements Component {
     }
     setValue(newValue: boolean): void {
         this.value = newValue;
+
     }
 }

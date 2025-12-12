@@ -30,17 +30,19 @@ export async function applyBackgroundColor(pen: Pen<Elements>, settings: UserCon
 
             let pens = PenArray.fromHTML(`
 
-<div id="fallbackColor" class="h-full w-full bg-blue fixed top-0 left-0 -z-1"></div>
-<video autoplay muted loop disablepictureinpicture id="background-video" class="fixed top-0 left-0 w-full h-full object-cover -z-1 pointer-events-none">
+<div id="fallbackColor" class="bg-blue absolute -z-1" style="height: ${pen.element.clientHeight}px; width: ${pen.element.clientWidth}px"></div>
+<video autoplay muted loop disablepictureinpicture id="background-video" class="absolute object-cover -z-1 pointer-events-none" style="height: ${pen.element.clientHeight}px; width: ${pen.element.clientWidth}px">
 <source src="${videoUrl}" type="video/${videoExtension || 'mp4'}">
 </video>
 `);
+            
             let videoPen = pens.getById('background-video');
             pen.element.style.background = 'none';
-            videoPen.setParent(document.body);
+            // custom logic for the preview video element
+                videoPen.setParent(pen, 0);
 
             let fallbackPen = pens.getById('fallbackColor');
-            fallbackPen.setParent(document.body);
+            fallbackPen.setParent(pen);
             fallbackPen.element.style.backgroundColor = settings.background.fallbackColor || 'black';
 
             // once loaded fade out fallback color

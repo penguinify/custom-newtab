@@ -4,7 +4,8 @@ type HTMLMarkup = string
 
 export interface Component {
     pens: PenArray;
-    render(): PenArray;
+    render?(): PenArray;
+    renderAsync?(): Promise<PenArray>;
 }
 
 class Components {
@@ -14,6 +15,7 @@ class Components {
 
     add(...components: Component[]): void {
         components.forEach((component) => {
+            if (component.render === undefined) return;
             this.pens.push(...component.render());
         });
     }
@@ -39,15 +41,23 @@ class Pen<T extends Elements> {
         if (parent) this.setParent(parent)
     }
 
-    setParent(parent: HTMLElement | elementGlobals | Pen<Elements>): void {
+    setParent(parent: HTMLElement | elementGlobals | Pen<Elements>, childNumber?: number): void {
         if (parent instanceof HTMLElement) {
             this.parent = parent
+            if (childNumber !== undefined && childNumber < parent.children.length) {
+                parent.insertBefore(this.element, parent.children[childNumber])
+            } else {
             this.parent.appendChild(this.element)
+            }
         } else if (parent === elementGlobals.mainApp) {
             this.parent = elementGlobals.mainApp
         } else if (parent instanceof Pen) {
             this.parent = parent.element
-            this.parent.appendChild(this.element)
+            if (childNumber !== undefined && childNumber < parent.element.children.length) {
+                parent.element.insertBefore(this.element, parent.element.children[childNumber])
+            } else {
+                parent.element.appendChild(this.element)
+            }
         }
     }
 
@@ -256,7 +266,7 @@ export function sanitize(unsafe_string: string): string {
         '"': '&quot;',
         "'": '&#039;'
     };
-    return unsafe_string.replace(/[&<>"']/g, function(m) { return map[m]; });
+    return unsafe_string.replace(/[&<>"']/g, function (m) { return map[m]; });
 }
 
 export { Components, Pen }

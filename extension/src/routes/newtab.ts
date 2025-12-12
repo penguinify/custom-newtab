@@ -1,7 +1,8 @@
 import { UserConfig } from "../types";
-import { AsyncRoute, Components, Elements, Pen, PenArray } from "../framework/penexutils";
+import { AsyncRoute, Components, PenArray, elementGlobals } from "../framework/penexutils";
 import { getUserConfig } from "../config";
 import { applyBackgroundColor, setFavicon, setTabTitle } from "../utils";
+
 
 export class NewTab extends AsyncRoute {
     pens: PenArray = new PenArray();
@@ -35,6 +36,7 @@ export class NewTab extends AsyncRoute {
 `);
 
         let container = pens.getById('newtab-container');
+        container.setParent(elementGlobals.mainApp);
 
         applyBackgroundColor(container, this.settings);
 

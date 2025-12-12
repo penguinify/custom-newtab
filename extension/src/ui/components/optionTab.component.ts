@@ -1,10 +1,10 @@
 import { Component, Elements, Pen, PenArray } from "../../framework/penexutils";
 import { SettingOptions } from "../../types";
-import { CheckboxInput } from "./checkboxInput.component";
-import { ColorPicker } from "./colorPicker.component";
-import { DropdownWithSubcomponents } from "./dropdownWithSubcomponents.component";
-import { FileInput } from "./fileInput.component";
-import { TextInput } from "./textInput.component";
+import { CheckboxInput } from "./inputs/checkboxInput.component";
+import { ColorPicker } from "./inputs/colorPicker.component";
+import { DropdownWithSubcomponents } from "./inputs/dropdownWithSubcomponents.component";
+import { FileInput } from "./inputs/fileInput.component";
+import { TextInput } from "./inputs/textInput.component";
 
 export class OptionTab implements Component {
     pens: PenArray = new PenArray();
@@ -63,7 +63,7 @@ export class OptionTab implements Component {
             case "checkbox":
                 this.pens.push(...new CheckboxInput(this.pens.getById(`${this.id}-options-tab`), option).render());
                 break;
-                
+
         }
         return optionPen;
 

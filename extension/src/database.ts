@@ -1,3 +1,5 @@
+import { updateConfigEvent } from "./config"
+
 const DB = "newTabDB"
 
 const request = indexedDB.open(DB, 1)
@@ -11,6 +13,8 @@ export async function saveString(key: string, value: string): Promise<void> {
     const transaction = db.transaction("data", "readwrite");
     const store = transaction.objectStore("data");
     store.put(value, key);
+
+    window.dispatchEvent(updateConfigEvent);
 }
 
 export async function getString(key: string): Promise<string | null> {

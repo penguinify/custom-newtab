@@ -4,6 +4,10 @@ import { getUserConfig } from "../config";
 import { OptionTab } from "../ui/components/optionTab.component";
 import { OptionNavigation } from "../ui/components/optionNavigation.component";
 import { applyBackgroundColor, setFavicon, setTabTitle } from "../utils";
+import { RouterRendererWrapperComponent } from "../ui/components/routerRendererWrapper.component";
+import { NewTab } from "./newtab";
+
+
 
 export class Options extends AsyncRoute {
     pens: PenArray = new PenArray();
@@ -13,6 +17,7 @@ export class Options extends AsyncRoute {
     tabs: TabWrapper[] = [];
 
     settings!: UserConfig;
+    previewWrapper!: RouterRendererWrapperComponent;
 
     constructor() {
         super();
@@ -37,19 +42,42 @@ export class Options extends AsyncRoute {
 </div>
 </div>
 `);
-
+        this.pens = pens;
         let container = pens.getById('options-container');
 
         applyBackgroundColor(container, this.settings);
 
 
-        this._createOptionsTabs(pens);
+        this._createOptionsTabs();
+        this._generatePreview();
+
+        window.addEventListener('userConfigUpdated', async () => {
+            this.settings = await getUserConfig();
+            document.body.querySelectorAll('video').forEach(video => {
+                video.remove();
+            });
+            applyBackgroundColor(container, this.settings);
+            document.body.style.setProperty('color', this.settings.colors.textColor || '#FFFFFF', 'important');
+            this.previewWrapper.renderAsync();
+        });
 
 
         return pens;
     }
 
-    private _createOptionsTabs(pens: PenArray) {
+    private _generatePreview() {
+        let previewRoute = new NewTab();
+        this.previewWrapper = new RouterRendererWrapperComponent(
+            this.pens.getById('options-container'),
+            previewRoute,
+            'w-1/3 h-1/3 rounded-lg border-2 border-white'
+        );
+
+        this.previewWrapper.renderAsync()
+    }
+
+
+    private _createOptionsTabs() {
 
         const generalTab = new OptionTab([
             {
@@ -81,7 +109,7 @@ export class Options extends AsyncRoute {
                 defaultValue: this.settings.hideOptionsButtonUnlessHovered,
                 path: ['hideOptionsButtonUnlessHovered']
             }
-        ], pens.getById('newtab-container'), 'general');
+        ], this.pens.getById('newtab-container'), 'general');
         const appearanceTab = new OptionTab([
             {
                 type: 'colorpicker',
@@ -152,8 +180,8 @@ export class Options extends AsyncRoute {
                 }
 
             }
-        ], pens.getById('newtab-container'), 'appearance');
-        const advancedTab = new OptionTab([], pens.getById('newtab-container'), 'advanced');
+        ], this.pens.getById('newtab-container'), 'appearance');
+        const advancedTab = new OptionTab([], this.pens.getById('newtab-container'), 'advanced');
 
         this.tabs = [
             {
@@ -176,7 +204,7 @@ export class Options extends AsyncRoute {
         const searchParams = new URLSearchParams(window.location.search);
         const activeTabId = searchParams.get('tab') || 'general';
 
-        let optionNavigation = new OptionNavigation(this.tabs, pens.getById('newtab-container'), activeTabId);
+        let optionNavigation = new OptionNavigation(this.tabs, this.pens.getById('newtab-container'), activeTabId);
         this.components.add(optionNavigation);
 
         this.components.add(generalTab);

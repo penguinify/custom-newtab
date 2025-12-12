@@ -1,5 +1,12 @@
 import { UserConfig } from "./types"
 
+const updateConfigEventDetails = {
+    bubbles: false,
+    cancelable: false,
+}
+
+export const updateConfigEvent = new CustomEvent('userConfigUpdated', updateConfigEventDetails);
+
 export function defaultUserConfig(): UserConfig {
     return {
         background: {
@@ -28,13 +35,19 @@ export function isUserConfig(obj: any): obj is UserConfig {
 }
 
 export function saveUserConfig(user_config: UserConfig): void {
+
     if (!chrome.storage || !chrome.storage.sync) {
+
         console.warn("Chrome storage not available, saving user config locally.");
         localStorage.setItem("user_config", JSON.stringify(user_config));
+
+    window.dispatchEvent(updateConfigEvent);
         return;
     }
 
     chrome.storage.sync.set({ user_config: user_config }, () => {
+
+    window.dispatchEvent(updateConfigEvent);
         console.info("User config saved!")
     });
 }
