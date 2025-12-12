@@ -35,11 +35,11 @@ export async function applyBackgroundColor(pen: Pen<Elements>, settings: UserCon
 <source src="${videoUrl}" type="video/${videoExtension || 'mp4'}">
 </video>
 `);
-            
+
             let videoPen = pens.getById('background-video');
             pen.element.style.background = 'none';
             // custom logic for the preview video element
-                videoPen.setParent(pen, 0);
+            videoPen.setParent(pen, 0);
 
             let fallbackPen = pens.getById('fallbackColor');
             fallbackPen.setParent(pen);

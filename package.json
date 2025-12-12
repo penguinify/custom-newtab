@@ -6,7 +6,8 @@
     "main": "main.ts",
     "scripts": {
         "dev": "vite",
-        "build": "vite build && crx3 pack --private-key private_key.pem -o dist/minimal-newtab.crx dist/extension"
+        "build": "vite build && crx3 pack --private-key private_key.pem -o dist/minimal-newtab.crx dist/extension",
+        "test": "vitest"
     },
     "keywords": [],
     "author": "penguinify",
@@ -21,6 +22,7 @@
         "@crxjs/vite-plugin": "^2.3.0",
         "crx3": "^2.0.0",
         "vite-plugin-static-copy": "^3.1.4",
-        "vite-plugin-zip-pack": "^1.2.4"
+        "vite-plugin-zip-pack": "^1.2.4",
+        "vitest": "^4.0.15"
     }
 }
