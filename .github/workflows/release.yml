@@ -1,1 +1,38 @@
+name: Build and Upload on Tag
 
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Create private key file
+        run: |
+          echo "${{ secrets.PRIVATE_KEY }}" > private_key.pem
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/minimal-newtab.crx
+            dist/extension.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
