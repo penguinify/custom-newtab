@@ -5,7 +5,10 @@
 - will make this once im done.
 
 # installation
+### manual installation
 clone repo, run `npm i` and `npm run build`, then load `./dist/extension` as an unpacked extension in your browser.
+### normal installation
+go to releases and click on the file that ends with .crx. Google should prompt you to install from there.
 
 # contributing
 make a pr
