@@ -15,6 +15,8 @@ export async function saveString(key: string, value: string): Promise<void> {
 
 export async function getString(key: string): Promise<string | null> {
     const db = await getDB();
+
+
     return new Promise((resolve, reject) => {
         const transaction = db.transaction("data", "readonly");
         const store = transaction.objectStore("data");
@@ -31,12 +33,15 @@ export async function getString(key: string): Promise<string | null> {
 
 
 async function getDB(): Promise<IDBDatabase> {
-
     if (request.readyState === 'done') {
         return request.result;
     }
     return new Promise((resolve, reject) => {
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
+        request.addEventListener('success', () => {
+            resolve(request.result);
+        });
+        request.addEventListener('error', () => {
+            reject(request.error);
+        });
     });
 }

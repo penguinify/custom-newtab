@@ -28,7 +28,7 @@ export class Options extends AsyncRoute {
         document.body.style.setProperty('color', this.settings.colors.textColor || '#FFFFFF', 'important');
 
         setTabTitle(this.settings.tabTitle + " - options" || 'options');
-        setFavicon(this.settings.tabFaviconUrl || '');
+        setFavicon();
 
         let pens = PenArray.fromHTML(
             `
@@ -60,11 +60,12 @@ export class Options extends AsyncRoute {
                 path: ['tabTitle']
             },
             {
-                type: 'text',
-                label: 'Favicon URL',
-                description: 'Set the URL of the favicon for the new tab page.',
-                defaultValue: this.settings.tabFaviconUrl,
-                path: ['tabFaviconUrl']
+                type: 'file',
+                label: 'Upload Favicon',
+                description: 'Upload a custom favicon for the new tab page.',
+                defaultValue: '',
+                fileValue: '',
+                path: ['tab_favicon']
             },
             {
                 type: 'text',

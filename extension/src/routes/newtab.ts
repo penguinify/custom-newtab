@@ -22,7 +22,7 @@ export class NewTab extends AsyncRoute {
         this.settings = await getUserConfig();
 
         setTabTitle(this.settings.tabTitle || 'new tab');
-        setFavicon(this.settings.tabFaviconUrl || '');
+        setFavicon();
 
         let pens = PenArray.fromHTML(`
 <div class="flex flex-col items-center justify-center h-full w-full" id="newtab-container">
@@ -54,7 +54,7 @@ export class NewTab extends AsyncRoute {
         }
     }
 
-    
+
 
 
 }

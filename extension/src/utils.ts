@@ -64,7 +64,23 @@ export function setTabTitle(title: string) {
     document.title = title;
 }
 
-export function setFavicon(faviconUrl: string) {
+const FaviconMap: Record<string, string> = {
+    'png': 'image/png',
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'ico': 'image/x-icon',
+    'svg': 'image/svg+xml',
+    'gif': 'image/gif',
+};
+
+export async function setFavicon() {
+    let faviconUrl = '';
+    let faviconData = await getString('tab_favicon');
+    let extension = await getString('tab_favicon_extension');
+    extension = FaviconMap[extension as string];
+    if (faviconData) {
+        faviconUrl = `data:${extension};base64,${faviconData}`;
+    }
     let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
     if (!link) {
         link = document.createElement('link');
@@ -72,6 +88,7 @@ export function setFavicon(faviconUrl: string) {
         document.getElementsByTagName('head')[0].appendChild(link);
     }
     link.href = faviconUrl;
+
 }
 
 export function convertArrayBufferToBase64(buffer: ArrayBuffer): string {
@@ -91,5 +108,7 @@ export function convertBase64ToArrayBuffer(base64: string): ArrayBuffer {
     for (let i = 0; i < len; i++) {
         bytes[i] = binaryString.charCodeAt(i);
     }
+    console.log(bytes.buffer);
     return bytes.buffer;
 }
+
