@@ -1,6 +1,6 @@
 import { TabWrapper, UserConfig } from "../types";
 import { AsyncRoute, Components, Elements, Pen, PenArray } from "../framework/penexutils";
-import { getUserConfig } from "../config";
+import { getUserConfig, setPathInUserConfig } from "../config";
 import { OptionTab } from "../ui/components/optionTab.component";
 import { OptionNavigation } from "../ui/components/optionNavigation.component";
 import { applyBackgroundColor, setFavicon, setTabTitle } from "../utils";
@@ -113,7 +113,7 @@ export class Options extends AsyncRoute {
                 label: 'Hide options button unless hovered',
                 description: 'Hide the options button on the new tab page unless the mouse is hovering over it.',
                 defaultValue: this.settings.hideOptionsButtonUnlessHovered,
-                path: ['hideOptionsButtonUnlessHovered']
+                onChange: this._updateUserConfig.bind(this, ['hideOptionsButtonUnlessHovered']),
             }
         ], this.pens.getById('newtab-container'), 'general');
         const appearanceTab = new OptionTab([
@@ -236,7 +236,9 @@ export class Options extends AsyncRoute {
     }
 
 
-
+    private _updateUserConfig<T>(path: string[], value: T): void {
+        setPathInUserConfig(path, value);
+    }
 
 
 

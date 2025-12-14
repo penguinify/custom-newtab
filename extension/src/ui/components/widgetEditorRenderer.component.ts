@@ -1,11 +1,12 @@
 import { Component, Elements, Pen, PenArray } from "../../framework/penexutils";
 
-import { Widget, WidgetConfig } from "../../types";
+import { SettingOptions, Widget, WidgetConfig } from "../../types";
 import { collides, generateRandomId } from "../../utils";
 import { WidgetRegistry } from "../../widgetmanager";
 import { Options } from "../../routes/options";
 import { Widgets } from "../../routes/widgets";
 import { setPathInUserConfig } from "../../config";
+import { WidgetOptionsEditor } from "../components/widgetOptionsEditor.component";
 
 export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Component {
     parent: Pen<Elements>;
@@ -15,6 +16,7 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
     container: Pen<Elements>;
     scheduledDeletion: boolean = false;
     data: T;
+    widgetOptionsEditorInstance: WidgetOptionsEditor | null = null;
     static WidgetEditorInstances: WidgetEditorRenderer<any>[] = [];
     static SnapToGrid: boolean = true;
     static SnapInterval: number = 10;
@@ -65,6 +67,50 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
         return this.pens;
     }
 
+    _generateWidgetOptionsList(): SettingOptions[] {
+
+        // essentially just gets the name for the value, and depending on the value type, creates the appropriate SettingOptions object
+        let widgetOptions: SettingOptions[] = [];
+        for (let key in this.data.data) {
+            switch (typeof this.data.data[key]) {
+                case 'boolean':
+                    widgetOptions.push({
+                        type: 'checkbox',
+                        label: key.charAt(0).toUpperCase() + key.slice(1),
+                        description: `Toggle ${key}`,
+                        defaultValue: this.data.data[key] as unknown as boolean,
+                        onChange: this.changeData.bind(this, key)
+
+                    });
+                    break;
+            }
+        }
+
+        return widgetOptions;
+    }
+
+    changeData<V>(key: string, value: V) {
+        this.data.data[key] = value;
+    }
+
+
+    _createWidgetOptionsEditor() {
+        this.widgetOptionsEditorInstance = new WidgetOptionsEditor(
+            this._generateWidgetOptionsList(),
+            this.data.WidgetRecordId,
+            this.data.description
+        );
+        this.widgetOptionsEditorInstance.render();
+
+    }
+
+    _openWidgetOptionsEditor() {
+        if (!this.widgetOptionsEditorInstance) {
+            this._createWidgetOptionsEditor();
+        }
+        this.widgetOptionsEditorInstance?.show();
+    }
+
 
     _onDragStart(e: DragEvent) {
         e.preventDefault();
@@ -72,10 +118,12 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
             case 0: // Left mouse button
                 this._moveDrag(e as unknown as MouseEvent);
                 break;
+            case 1:
+                // Middle mouse button
+                this._openWidgetOptionsEditor();
+                break;
             case 2: // Right mouse button
                 this._scaleDrag(e as unknown as MouseEvent);
-                break;
-            default:
                 break;
         }
 

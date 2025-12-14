@@ -25,10 +25,9 @@ export class PenguinWidget extends Widget<WidgetConfig<{}>> {
             this.setParent(this.pens.getById(`penguin-widget-${this.id}`));
             this.setPosition(this.pens.getById(`penguin-widget-${this.id}`));
         } else {
-            console.log('Clock widget is in editor instance, skipping position set.');
         }
 
-        // this.pens is automatically added to the main app container by the framework
+        // why does it return something? who knows and who will ever know
         return this.pens;
     }
 
@@ -36,9 +35,7 @@ export class PenguinWidget extends Widget<WidgetConfig<{}>> {
     static defaultConfig(): WidgetConfig<{}> {
         return {
             WidgetRecordId: "penguin-widget",
-            // description shown in the widget drawer, not to be changed really every so dont worry.
             description: "a simple test widget",
-
             enabled: true,
             position: {
                 x: 0,

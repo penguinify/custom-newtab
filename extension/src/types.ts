@@ -77,7 +77,7 @@ export type SettingOptions = {
     label: string,
     description: string,
     defaultValue: boolean,
-    path: string[]
+    onChange?: (newValue: boolean) => void,
 } | {
     type: "button",
     label: string,

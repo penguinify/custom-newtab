@@ -36,7 +36,9 @@ export class CheckboxInput implements Component {
 
         let checkboxInput = container.getById(`${this.id}-input`);
         checkboxInput.element.addEventListener('change', this._onCheckboxChange.bind(this));
-        checkboxInput.element.addEventListener('change', this._updateUserConfig.bind(this));
+        checkboxInput.element.addEventListener('change', (e: Event) => {
+            this.settings.onChange(event.target ? (event.target as HTMLInputElement).checked : false);
+        });
 
         this.pens.push(...container);
 
@@ -52,13 +54,6 @@ export class CheckboxInput implements Component {
         this.value = input.checked;
     }
 
-    private _updateUserConfig(): void {
-        setPathInUserConfig(this.settings.path || [], this.value).then(() => {
-            console.info(`Updated user config at path ${this.settings.path} with value ${this.value}`);
-        }).catch((error) => {
-            console.error('Error updating user config:', error);
-        });
-    }
 
     getValue(): boolean {
         return this.value;

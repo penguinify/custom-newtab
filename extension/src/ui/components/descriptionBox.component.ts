@@ -14,7 +14,7 @@ export class DescriptionBox implements Component {
 
     render(): PenArray {
         this.pens = PenArray.fromHTML(`
-            <div id ="description-container" class="px-2 py-1 bg-black/75 rounded-lg border-2 border-white absolute z-10 ponter-events-none ease-in-out transition-opacity">
+            <div id ="description-container" class="px-2 py-1 bg-black/75 rounded-lg border-2 border-white absolute z-100 ponter-events-none ease-in-out transition-opacity">
                 <p class="text-white pointer-events-none" id="description-box"></p>
             </div>
         `);
