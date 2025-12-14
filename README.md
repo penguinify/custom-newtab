@@ -2,7 +2,7 @@
 "Fork" of minimal newtab. Essentially a rewrite with more customizability as the original contains a lot of spaghetti code and has little features.
 
 ## what I changed
-- will make this once im done.
+- wasn't supposed to change everything, but i changed everything.
 
 # installation
 ### manual installation
