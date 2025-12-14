@@ -1,5 +1,4 @@
 import { Components, elementGlobals } from './penexutils'
-import { Router } from './penexutils'
 
 // Default layout
 const defaultLayout = `

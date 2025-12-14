@@ -31,7 +31,7 @@ export async function applyBackgroundColor(pen: Pen<Elements>, settings: UserCon
             let pens = PenArray.fromHTML(`
 
 <div id="fallbackColor" class="bg-blue absolute -z-1" style="height: ${pen.element.clientHeight}px; width: ${pen.element.clientWidth}px"></div>
-<video autoplay muted loop disablepictureinpicture id="background-video" class="absolute object-cover -z-1 pointer-events-none" style="height: ${pen.element.clientHeight}px; width: ${pen.element.clientWidth}px">
+<video autoplay muted loop disablepictureinpicture id="background-video" class=" w-full h-full absolute object-cover -z-1 pointer-events-none" style="height: ${pen.element.clientHeight}px; width: ${pen.element.clientWidth}px">
 <source src="${videoUrl}" type="video/${videoExtension || 'mp4'}">
 </video>
 `);
@@ -110,7 +110,14 @@ export function convertBase64ToArrayBuffer(base64: string): ArrayBuffer {
     for (let i = 0; i < len; i++) {
         bytes[i] = binaryString.charCodeAt(i);
     }
-    console.log(bytes.buffer);
     return bytes.buffer;
 }
 
+export function collides(DOMRectA: DOMRect, DOMRectB: DOMRect): boolean {
+    return !(
+        DOMRectA.top > DOMRectB.bottom ||
+        DOMRectA.bottom < DOMRectB.top ||
+        DOMRectA.left > DOMRectB.right ||
+        DOMRectA.right < DOMRectB.left
+    );
+}

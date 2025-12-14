@@ -1,13 +1,15 @@
 import { UserConfig } from "../types";
-import { AsyncRoute, Components, PenArray, elementGlobals } from "../framework/penexutils";
+import { AsyncRoute, Components, Pen, PenArray, elementGlobals } from "../framework/penexutils";
 import { getUserConfig } from "../config";
 import { applyBackgroundColor, setFavicon, setTabTitle } from "../utils";
+import { WidgetEditorRenderer } from "../ui/components/widgetEditorRenderer.component";
+import { WidgetRegistry } from "../widgetmanager";
 
 
 export class NewTab extends AsyncRoute {
     pens: PenArray = new PenArray();
     pensAsync: Promise<PenArray>;
-    path = '/';
+    path = '/index.html';
     components: Components = new Components();
 
     settings!: UserConfig;
@@ -44,6 +46,9 @@ export class NewTab extends AsyncRoute {
         optionsButton.element.addEventListener('click', NewTab._openOptionsPage);
 
 
+        setTimeout(() => {
+            this.loadWidgets();
+        }, 0);
 
         return pens;
     }
@@ -56,6 +61,18 @@ export class NewTab extends AsyncRoute {
         }
     }
 
+    loadWidgets() {
+        let widgets = this.settings.widgets || [];
+        for (let widgetConfig of widgets) {
+            let widgetClass = WidgetRegistry.getWidget(widgetConfig.WidgetRecordId);
+            if (widgetClass) {
+                new widgetClass(widgetConfig).render();
+
+            }
+
+        }
+
+    }
 
 
 

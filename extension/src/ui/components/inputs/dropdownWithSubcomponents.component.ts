@@ -2,6 +2,7 @@ import { setPathInUserConfig } from "../../../config";
 import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
 import { SettingOptions } from "../../../types";
 import { generateRandomId } from "../../../utils";
+import { ButtonInput } from "./buttonInput.component";
 import { CheckboxInput } from "./checkboxInput.component";
 import { ColorPicker } from "./colorPicker.component";
 import { FileInput } from "./fileInput.component";
@@ -14,6 +15,7 @@ const componentMap: Record<string, ComponentConstructor> = {
     text: TextInput,
     file: FileInput,
     checkbox: CheckboxInput,
+    button: ButtonInput
     // Add other component mappings here as needed
 };
 
@@ -40,7 +42,7 @@ export class DropdownWithSubcomponents implements Component {
         }
 
         let container = PenArray.fromHTML(`
-            <div id="dropdown-${this.id}" class="flex flex-col h-full h-min gap-2">
+            <div id="dropdown-${this.id}" class="flex flex-col h-full h-min gap-2" data-description="${this.settings.description || ''}">
                 <label for="${this.id}-select" class=" flex gap-2 py-2 items-center">
                     <p class="text-lg">${this.settings.label}</p>
                 </label>

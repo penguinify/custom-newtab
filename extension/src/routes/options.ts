@@ -6,13 +6,15 @@ import { OptionNavigation } from "../ui/components/optionNavigation.component";
 import { applyBackgroundColor, setFavicon, setTabTitle } from "../utils";
 import { RouterRendererWrapperComponent } from "../ui/components/routerRendererWrapper.component";
 import { NewTab } from "./newtab";
+import { DescriptionBox } from "../ui/components/descriptionBox.component";
+import { router } from "..";
 
 
 
 export class Options extends AsyncRoute {
     pens: PenArray = new PenArray();
     pensAsync: Promise<PenArray>;
-    path = '/options';
+    path = '/options.html';
     components: Components = new Components();
     tabs: TabWrapper[] = [];
 
@@ -49,7 +51,7 @@ export class Options extends AsyncRoute {
 
 
         this._createOptionsTabs();
-        this._generatePreview();
+        this._addDescriptionBox();
 
         window.addEventListener('userConfigUpdated', async () => {
             this.settings = await getUserConfig();
@@ -74,6 +76,10 @@ export class Options extends AsyncRoute {
         );
 
         this.previewWrapper.renderAsync()
+    }
+
+    private _addDescriptionBox() {
+        this.components.add(new DescriptionBox());
     }
 
 
@@ -181,7 +187,17 @@ export class Options extends AsyncRoute {
 
             }
         ], this.pens.getById('newtab-container'), 'appearance');
-        const advancedTab = new OptionTab([], this.pens.getById('newtab-container'), 'advanced');
+        const widgetsTab = new OptionTab([
+            {
+                type: 'button',
+                label: 'Manage Widgets',
+                description: 'Open the widget management interface.',
+                onClick: () => {
+                    window.location.href = '/widgets.html';
+                }
+            }
+
+        ], this.pens.getById('newtab-container'), 'widgets');
 
         this.tabs = [
             {
@@ -195,9 +211,9 @@ export class Options extends AsyncRoute {
                 optionTab: appearanceTab
             },
             {
-                id: 'advanced',
-                label: 'Advanced',
-                optionTab: advancedTab
+                id: 'widggets',
+                label: 'Widgets',
+                optionTab: widgetsTab
             }
         ]
 
@@ -209,7 +225,7 @@ export class Options extends AsyncRoute {
 
         this.components.add(generalTab);
         this.components.add(appearanceTab);
-        this.components.add(advancedTab);
+        this.components.add(widgetsTab);
 
 
     }

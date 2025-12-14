@@ -1,6 +1,7 @@
 // does what it says on the tin, it wraps a router inside of itself, i think its pretty nifty but you can decide for yoursel
 
 import { AsyncRoute, Component, Elements, Pen, PenArray, Route, Router, elementGlobals } from "../../framework/penexutils";
+import { Options } from "../../routes/options";
 import { generateRandomId } from "../../utils";
 
 
@@ -24,9 +25,9 @@ export class RouterRendererWrapperComponent implements Component {
     // creates the wrapper
     init() {
         this.pens = PenArray.fromHTML(`
-        <div class="${this.styles}" id="router-wrapper-${this.id}">
-            <!-- Route content will be rendered here -->
+        <div class="${this.styles}" id="router-wrapper-${this.id}" data-description="Preview">
         </div>
+
 `);
     }
 
@@ -47,7 +48,6 @@ export class RouterRendererWrapperComponent implements Component {
         let wrapperDiv = this.pens[0];
         wrapperDiv.element.innerHTML = '';
         wrapperDiv.setParent(this.parent);
-        console.log(this.parent)
 
 
         for (let pen of routePens) {
@@ -56,7 +56,7 @@ export class RouterRendererWrapperComponent implements Component {
                 pen.setParent(wrapperDiv);
             }
         }
-        console.log('RouterRendererWrapperComponent rendered route:', this.pens);
+
 
         return this.pens;
     }

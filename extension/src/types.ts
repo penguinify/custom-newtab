@@ -1,4 +1,8 @@
+import { CONFIG } from "./config"
+import { DEBUG_LOGGING } from "./constants"
+import { Component, Elements, Pen, PenArray } from "./framework/penexutils"
 import { OptionTab } from "./ui/components/optionTab.component"
+import { generateRandomId } from "./utils"
 
 export interface UserConfig {
     background: BackgroundType,
@@ -7,6 +11,9 @@ export interface UserConfig {
     tabFaviconUrl: string
     fontFamily: string
     hideOptionsButtonUnlessHovered: boolean
+
+    // someone better than me remove the any
+    widgets: WidgetConfig<any>[]
 }
 
 
@@ -71,5 +78,98 @@ export type SettingOptions = {
     description: string,
     defaultValue: boolean,
     path: string[]
+} | {
+    type: "button",
+    label: string,
+    description: string,
+    onClick: () => void,
 }
+
+export type WidgetConfig<T extends Object> = {
+    WidgetRecordId: string,
+    description: string,
+    position: PositionData,
+    enabled: boolean,
+    data: T // configuration data specific to the widget
+}
+export type PositionData = {
+    x: number,
+    y: number
+    scale: number
+}
+
+export abstract class Widget<T extends WidgetConfig<Object>> implements Component {
+    pens: PenArray = new PenArray();
+    data!: T;
+    id: string = generateRandomId(); // unique id for this widget instance, ALWAYS use this for element ids within the widget to avoid conflicts in case the user wants multiple of the same widget.
+    displayInstance: boolean = false; // is this widget being rendered in in the widgetDrawer?
+    editorInstance: boolean = false; // is this widget being rendered in the widget editor?
+
+    /*
+    * Data is the widget configuration data, which is stored in the UserConfig object
+    */
+    constructor(data: T) {
+        this.data = data;
+    }
+
+    abstract render(): PenArray;
+
+
+    static defaultConfig(): WidgetConfig<Object> {
+        return new Error("defaultConfig method not implemented on the widget, please implement this.") as any;
+    }
+
+    setPosition(pen: Pen<Elements>) {
+
+        setTimeout(this._applyPosition.bind(this, pen), 0);
+
+
+
+    }
+    private _applyPosition(pen: Pen<Elements>) {
+
+        console.log('Applying position for widget', this.data.WidgetRecordId, 'with data', this.data.position);
+        pen.element.style.position = 'absolute';
+        // the x and y are stored as a percentage of the screen size to allow for responsive design
+        console.log('Parent element dimensions:', pen.element.parentElement?.clientWidth, 'x', pen.element.parentElement?.clientHeight);
+        let calculatedX = pen.element.parentElement?.clientLeft + (this.data.position.x / 100) * pen.element.parentElement!.clientWidth;
+        let calculatedY = pen.element.parentElement?.clientTop + (this.data.position.y / 100) * pen.element.parentElement!.clientHeight;
+        console.log('Setting widget position to', calculatedX, calculatedY);
+
+        // Calculate scale based on ratio of average of parent height/900 and width/1600
+        let scale = this.data.position.scale;
+        if (pen.element.parentElement) {
+            const parentWidth = pen.element.parentElement.clientWidth;
+            const parentHeight = pen.element.parentElement.clientHeight;
+            let widthRatio = parentWidth / 1600;
+            let heightRatio = parentHeight / 900;
+            let ratio = (widthRatio + heightRatio) / 2;
+            ratio = Math.max(0, Math.min(1, ratio));
+            scale = this.data.position.scale * (0.1 + (10.0 - 0.1) * ratio);
+            scale = parseFloat(scale.toFixed(2));
+            console.log('Ratio:', ratio, 'Calculated scale:', scale);
+        }
+
+        pen.element.style.left = `${calculatedX}px`;
+        pen.element.style.top = `${calculatedY}px`;
+        pen.element.style.transformOrigin = 'top left';
+        pen.element.style.transform = `scale(${scale})`;
+        console.log(`Widget ${this.data.WidgetRecordId} positioned at (${calculatedX}px, ${calculatedY}px) with scale ${scale}`);
+    }
+
+    setParent(pen: Pen<Elements>) {
+        pen.setParent(document.body);
+    }
+
+    getConfig(): UserConfig {
+        return CONFIG
+    }
+
+
+}
+
+export type ClockData = WidgetConfig<{
+    showSeconds: boolean,
+    is24Hour: boolean,
+}>
 

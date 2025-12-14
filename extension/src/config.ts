@@ -5,6 +5,11 @@ const updateConfigEventDetails = {
     cancelable: false,
 }
 
+export var CONFIG = {} as UserConfig;
+getUserConfig().then(config => {
+    CONFIG = config;
+});
+
 export const updateConfigEvent = new CustomEvent('userConfigUpdated', updateConfigEventDetails);
 
 export function defaultUserConfig(): UserConfig {
@@ -19,7 +24,8 @@ export function defaultUserConfig(): UserConfig {
         tabTitle: "New Tab",
         tabFaviconUrl: "",
         fontFamily: "Times New Roman, serif",
-        hideOptionsButtonUnlessHovered: false
+        hideOptionsButtonUnlessHovered: false,
+        widgets: []
     }
 }
 
@@ -55,6 +61,9 @@ export function mergeUserConfig(defaultConfig: UserConfig, oldConfig: Partial<Us
 }
 
 export function saveUserConfig(userConfig: UserConfig): void {
+
+    CONFIG = userConfig;
+
     if (!chrome.storage || !chrome.storage.sync) {
         console.warn("Chrome storage not available, saving user config locally.");
         localStorage.setItem("user_config", JSON.stringify(userConfig));
@@ -94,6 +103,7 @@ export async function getUserConfig(): Promise<UserConfig> {
     const storedConfig = result.user_config;
 
     if (isUserConfig(storedConfig)) {
+        CONFIG = storedConfig;
         return storedConfig;
     } else {
         const defaultConfig = defaultUserConfig();
@@ -101,6 +111,7 @@ export async function getUserConfig(): Promise<UserConfig> {
         chrome.storage.sync.set({ user_config: mergedConfig }, () => {
             console.info("Default user config saved to Chrome storage.");
         });
+        CONFIG = mergedConfig;
         return mergedConfig;
     }
 }

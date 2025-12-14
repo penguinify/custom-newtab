@@ -24,7 +24,7 @@ export class CheckboxInput implements Component {
 
     render(): PenArray {
         let container = PenArray.fromHTML(`
-            <div id="${this.id}-checkbox-input" class="flex flex-col">
+            <div id="${this.id}-checkbox-input" class="flex flex-col" data-description="${this.settings.description || ''}">
                 <label for="${this.id}-input" class="flex gap-2 py-2 items-center justify-evenly w-max"
                     style="cursor:pointer;">
                     <input type="checkbox" id="${this.id}-input" class="appearance-none w-6 h-6 rounded-md border-2 border-white checked:bg-white checked:border-white focus:outline-none transition-colors duration-150" ${this.settings.defaultValue ? 'checked' : ''}>

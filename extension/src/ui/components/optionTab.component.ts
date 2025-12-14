@@ -1,5 +1,6 @@
 import { Component, Elements, Pen, PenArray } from "../../framework/penexutils";
 import { SettingOptions } from "../../types";
+import { ButtonInput } from "./inputs/buttonInput.component";
 import { CheckboxInput } from "./inputs/checkboxInput.component";
 import { ColorPicker } from "./inputs/colorPicker.component";
 import { DropdownWithSubcomponents } from "./inputs/dropdownWithSubcomponents.component";
@@ -22,7 +23,7 @@ export class OptionTab implements Component {
 
     render(): PenArray {
         let container = PenArray.fromHTML(`
-            <div id="${this.id}-options-tab" class="options-tab w-full flex flex-col  p-6 text-xl gap-4">
+            <div id="${this.id}-options-tab" class="options-tab w-full flex flex-col  p-6 text-xl gap-4" >
                 <h2>${this.id.charAt(0).toUpperCase() + this.id.slice(1)} Settings</h2>
             </div>
         `);
@@ -63,6 +64,8 @@ export class OptionTab implements Component {
             case "checkbox":
                 this.pens.push(...new CheckboxInput(this.pens.getById(`${this.id}-options-tab`), option).render());
                 break;
+            case "button":
+                this.pens.push(...new ButtonInput(this.pens.getById(`${this.id}-options-tab`), option).render());
 
         }
         return optionPen;

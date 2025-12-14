@@ -21,8 +21,10 @@ export class TextInput implements Component {
     }
 
     render(): PenArray {
+
+
         let container = PenArray.fromHTML(`
-            <div id="${this.id}-text-input" class="text-input flex flex-col">
+            <div id="${this.id}-text-input" class="text-input flex flex-col" data-description="${this.settings.description || ''}">
                 <label for="${this.id}-input" class=" flex gap-2 py-2 items-center justify-evenely w-max">
                     <p class="text-lg">${this.settings.label}</p>
                 </label>
@@ -48,6 +50,8 @@ export class TextInput implements Component {
     }
 
     private _updateUserConfig(): void {
+
+
         setPathInUserConfig(this.settings.path || [], this.value).then(() => {
             console.info(`Updated user config at path ${this.settings.path} with value ${this.value}`);
         }).catch((error) => {
