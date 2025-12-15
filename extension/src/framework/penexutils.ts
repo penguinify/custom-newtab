@@ -288,6 +288,11 @@ export class Router {
 
     }
 
+    reloadCurrentRoute(): void {
+        if (DEBUG_LOGGING) console.debug('[Router] Reloading current route:', this.path);
+        this.navigateTo(this.path)
+    }
+
 
 }
 

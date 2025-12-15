@@ -3,3 +3,6 @@ pnpm-lock.yaml
 node_modules/
 dist/
 private_key.pem
+# i only use vs code for refractoring and yet it still be making random ass files
+# it also is spewing random errors out acting like ima fix them
+.vscode

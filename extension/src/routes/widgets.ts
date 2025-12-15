@@ -1,12 +1,13 @@
-import { UserConfig, WidgetConfig } from "../types";
+import { TextData, UserConfig, WidgetConfig } from "../types";
 import { AsyncRoute, Components, Pen, PenArray, elementGlobals } from "../framework/penexutils";
 import { getUserConfig } from "../config";
 import { applyBackgroundColor, setFavicon, setTabTitle } from "../utils";
-import { WidgetsDrawer } from "../ui/components/widgetsDrawer.component";
+import { WidgetsDrawer } from "../ui/components/widgetsComponents/widgetsDrawer.component";
 import { DescriptionBox } from "../ui/components/descriptionBox.component";
 import { WidgetRegistry } from "../widgetmanager";
-import { WidgetDisplay } from "../ui/components/widgetDisplay.component";
-import { WidgetEditorRenderer } from "../ui/components/widgetEditorRenderer.component";
+import { WidgetDisplay } from "../ui/components/widgetsComponents/widgetDisplay.component";
+import { WidgetEditorRenderer } from "../ui/components/widgetsComponents/widgetEditorRenderer.component";
+import { TextWidget } from "../ui/widgets/text.widget";
 
 
 export class Widgets extends AsyncRoute {
@@ -46,7 +47,10 @@ export class Widgets extends AsyncRoute {
         WidgetEditorRenderer.WidgetEditorInstances = [];
 
         this.widgetsDrawerComponent = new WidgetsDrawer();
+
         this.components.add(this.widgetsDrawerComponent);
+
+
 
 
         this._addDescriptionBox();
@@ -56,6 +60,8 @@ export class Widgets extends AsyncRoute {
             Widgets.previewDOMRect = this.pens.getById('editor-container').element.getBoundingClientRect();
 
             this._loadSavedWidgets();
+
+
         }, 0);
 
         return pens;
@@ -89,7 +95,7 @@ export class Widgets extends AsyncRoute {
             let widgetClass = WidgetRegistry.getWidget(widgetConfig.WidgetRecordId);
             if (widgetClass) {
                 new WidgetEditorRenderer<typeof widgetConfig>(Pen.fromElement(document.body), widgetClass, widgetConfig);
-                
+
             }
 
         }

@@ -1,8 +1,8 @@
 import { TabWrapper, UserConfig } from "../types";
 import { AsyncRoute, Components, Elements, Pen, PenArray } from "../framework/penexutils";
 import { getUserConfig, setPathInUserConfig } from "../config";
-import { OptionTab } from "../ui/components/optionTab.component";
-import { OptionNavigation } from "../ui/components/optionNavigation.component";
+import { OptionTab } from "../ui/components/options/optionTab.component";
+import { OptionNavigation } from "../ui/components/options/optionNavigation.component";
 import { applyBackgroundColor, setFavicon, setTabTitle } from "../utils";
 import { RouterRendererWrapperComponent } from "../ui/components/routerRendererWrapper.component";
 import { NewTab } from "./newtab";
@@ -91,7 +91,7 @@ export class Options extends AsyncRoute {
                 label: 'Tab title',
                 description: 'Set the title of the new tab page.',
                 defaultValue: this.settings.tabTitle,
-                path: ['tabTitle']
+                onChange: this._updateUserConfig.bind(this, ['tabTitle']),
             },
             {
                 type: 'file',
@@ -106,7 +106,7 @@ export class Options extends AsyncRoute {
                 label: 'Font Family',
                 description: 'Set the font family for the new tab page.',
                 defaultValue: this.settings.fontFamily,
-                path: ['fontFamily']
+                onChange: this._updateUserConfig.bind(this, ['fontFamily']),
             },
             {
                 type: 'checkbox',
@@ -122,7 +122,7 @@ export class Options extends AsyncRoute {
                 label: 'Text Color',
                 description: 'Select the text color for the new tab page.',
                 defaultValue: this.settings.colors.textColor,
-                path: ['colors', 'textColor']
+                onChange: this._updateUserConfig.bind(this, ['colors', 'textColor']),
             },
             {
                 type: 'dropdown',
@@ -138,7 +138,7 @@ export class Options extends AsyncRoute {
                             label: 'Background Color',
                             description: 'Select the background color for the new tab page.',
                             defaultValue: this.settings.background.type === 'color' ? this.settings.background.hex : '#000000',
-                            path: ['background', 'hex']
+                            onChange: this._updateUserConfig.bind(this, ['background', 'hex']),
                         }
                     ],
                     'image': [
@@ -147,14 +147,14 @@ export class Options extends AsyncRoute {
                             label: 'Background Image URL',
                             description: 'Enter the URL of the background image.',
                             defaultValue: this.settings.background.type === 'image' ? this.settings.background.url : '',
-                            path: ['background', 'url']
+                            onChange: this._updateUserConfig.bind(this, ['background', 'url']),
                         },
                         {
                             type: 'text',
                             label: 'Additional CSS',
                             description: 'Enter additional CSS to apply to the background image.',
                             defaultValue: this.settings.background.type === 'image' ? this.settings.background.css : '',
-                            path: ['background', 'css']
+                            onChange: this._updateUserConfig.bind(this, ['background', 'css']),
                         }
                     ],
                     'video': [
@@ -171,7 +171,7 @@ export class Options extends AsyncRoute {
                             label: 'Fallback Color',
                             description: 'Select the fallback color to display if the video fails to load.',
                             defaultValue: this.settings.background.type === 'video' ? this.settings.background.fallbackColor : '#000000',
-                            path: ['background', 'fallbackColor']
+                            onChange: this._updateUserConfig.bind(this, ['background', 'fallbackColor']),
                         }
                     ],
                     'customcss': [
@@ -180,7 +180,7 @@ export class Options extends AsyncRoute {
                             label: 'Custom CSS',
                             description: 'Enter custom CSS for the new tab page.',
                             defaultValue: this.settings.background.type === 'customcss' ? this.settings.background.css : '',
-                            path: ['background', 'css']
+                            onChange: this._updateUserConfig.bind(this, ['background', 'css']),
                         }
                     ]
                 }

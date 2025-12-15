@@ -1,12 +1,12 @@
-import { Component, Elements, Pen, PenArray } from "../../framework/penexutils";
-import { SettingOptions } from "../../types";
-import { generateRandomId } from "../../utils";
-import { ButtonInput } from "./inputs/buttonInput.component";
-import { CheckboxInput } from "./inputs/checkboxInput.component";
-import { ColorPicker } from "./inputs/colorPicker.component";
-import { DropdownWithSubcomponents } from "./inputs/dropdownWithSubcomponents.component";
-import { FileInput } from "./inputs/fileInput.component";
-import { TextInput } from "./inputs/textInput.component";
+import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
+import { SettingOptions } from "../../../types";
+import { generateRandomId } from "../../../utils";
+import { ButtonInput } from "../inputs/buttonInput.component";
+import { CheckboxInput } from "../inputs/checkboxInput.component";
+import { ColorPicker } from "../inputs/colorPicker.component";
+import { DropdownWithSubcomponents } from "../inputs/dropdownWithSubcomponents.component";
+import { FileInput } from "../inputs/fileInput.component";
+import { TextInput } from "../inputs/textInput.component";
 
 export class WidgetOptionsEditor implements Component {
     pens: PenArray = new PenArray();
@@ -18,8 +18,8 @@ export class WidgetOptionsEditor implements Component {
     constructor(options: SettingOptions[], title: string, description: string) {
 
         this.options = options;
-            this.title = title;
-            this.description = description;
+        this.title = title;
+        this.description = description;
         this.addCloseButton();
     }
 
@@ -43,6 +43,7 @@ export class WidgetOptionsEditor implements Component {
             const optionPen = this._createOption(option);
             optionPen.forEach(pen => {
                 pen.setParent(containerPen);
+
             });
         });
 

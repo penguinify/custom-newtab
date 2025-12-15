@@ -1,11 +1,11 @@
-import { Component, Elements, Pen, PenArray } from "../../framework/penexutils";
-import { SettingOptions } from "../../types";
-import { ButtonInput } from "./inputs/buttonInput.component";
-import { CheckboxInput } from "./inputs/checkboxInput.component";
-import { ColorPicker } from "./inputs/colorPicker.component";
-import { DropdownWithSubcomponents } from "./inputs/dropdownWithSubcomponents.component";
-import { FileInput } from "./inputs/fileInput.component";
-import { TextInput } from "./inputs/textInput.component";
+import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
+import { SettingOptions } from "../../../types";
+import { ButtonInput } from "../inputs/buttonInput.component";
+import { CheckboxInput } from "../inputs/checkboxInput.component";
+import { ColorPicker } from "../inputs/colorPicker.component";
+import { DropdownWithSubcomponents } from "../inputs/dropdownWithSubcomponents.component";
+import { FileInput } from "../inputs/fileInput.component";
+import { TextInput } from "../inputs/textInput.component";
 
 export class OptionTab implements Component {
     pens: PenArray = new PenArray();
@@ -15,7 +15,6 @@ export class OptionTab implements Component {
     options: SettingOptions[] = [];
 
     constructor(options: SettingOptions[], parent: Pen<Elements>, id: string) {
-
         this.id = id;
         this.parent = parent;
         this.options = options;

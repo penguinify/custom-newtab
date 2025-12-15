@@ -1,6 +1,6 @@
-import { Component, Elements, Pen, PenArray } from "../../framework/penexutils";
-import { Widget, WidgetConfig } from "../../types";
-import { WidgetRegistry } from "../../widgetmanager";
+import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
+import { Widget, WidgetConfig } from "../../../types";
+import { WidgetRegistry } from "../../../widgetmanager";
 import { WidgetEditorRenderer } from "./widgetEditorRenderer.component";
 
 export class WidgetDisplay<T extends WidgetConfig<Object>> implements Component {

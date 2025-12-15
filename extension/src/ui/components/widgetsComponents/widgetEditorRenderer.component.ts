@@ -1,12 +1,12 @@
-import { Component, Elements, Pen, PenArray } from "../../framework/penexutils";
+import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
 
-import { SettingOptions, Widget, WidgetConfig } from "../../types";
-import { collides, generateRandomId } from "../../utils";
-import { WidgetRegistry } from "../../widgetmanager";
-import { Options } from "../../routes/options";
-import { Widgets } from "../../routes/widgets";
-import { setPathInUserConfig } from "../../config";
-import { WidgetOptionsEditor } from "../components/widgetOptionsEditor.component";
+import { SettingOptions, Widget, WidgetConfig } from "../../../types";
+import { collides, generateRandomId } from "../../../utils";
+import { WidgetRegistry } from "../../../widgetmanager";
+import { Options } from "../../../routes/options";
+import { Widgets } from "../../../routes/widgets";
+import { setPathInUserConfig } from "../../../config";
+import { WidgetOptionsEditor } from "./widgetOptionsEditor.component";
 
 export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Component {
     parent: Pen<Elements>;
@@ -15,6 +15,7 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
     id: string = generateRandomId();
     container: Pen<Elements>;
     scheduledDeletion: boolean = false;
+    widgetInstance: Widget<T>;
     data: T;
     widgetOptionsEditorInstance: WidgetOptionsEditor | null = null;
     static WidgetEditorInstances: WidgetEditorRenderer<any>[] = [];
@@ -26,14 +27,11 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
         this.widget = widget;
         this.parent = parent;
         this.render();
-        console.log(WidgetEditorRenderer.WidgetEditorInstances);
     }
 
     render(): PenArray {
 
         //@ts-ignore yes it does exist, dont play with me
-        let widgetInstance = new this.widget(this.data);
-        widgetInstance.editorInstance = true;
 
         this.pens = PenArray.fromHTML(`
 
@@ -47,10 +45,9 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
         </div>
         `);
 
-        widgetInstance.render()[0].setParent(this.pens.querySelector('.widget-content')!);
+        this._createNewWidgetInstance();
 
 
-        console.log(this)
 
         this.container = this.pens.getById(`widget-${this.id}`);
         this.container.setParent(this.parent);
@@ -83,14 +80,38 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
 
                     });
                     break;
+                case 'string':
+                    widgetOptions.push({
+                        type: 'text',
+                        label: key.charAt(0).toUpperCase() + key.slice(1),
+                        description: `Set ${key}`,
+                        defaultValue: this.data.data[key] as unknown as string,
+                        onChange: this.changeData.bind(this, key)
+
+                    });
+                    break;
+
+                default:
+                    console.warn(`Unsupported data type for widget option: ${key} (${typeof this.data.data[key]})`);
             }
         }
 
         return widgetOptions;
     }
 
+    _createNewWidgetInstance() {
+        this.widgetInstance = new this.widget(this.data);
+        this.widgetInstance.editorInstance = true;
+        this.widgetInstance.render()[0].setParent(this.pens.querySelector('.widget-content')!);
+    }
+
     changeData<V>(key: string, value: V) {
         this.data.data[key] = value;
+        this.syncDataToInstances();
+
+        this.widgetInstance.destroy();
+        this._createNewWidgetInstance();
+
     }
 
 
@@ -246,7 +267,6 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
                 scale: this.data.position.scale
             };
 
-            console.log(this.data.position);
         };
 
         const removeListeners = () => {

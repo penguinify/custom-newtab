@@ -35,7 +35,9 @@ export class ColorPicker implements Component {
 
         let colorInput = container.getById(`${this.id}-input`);
         colorInput.element.addEventListener('input', this._onColorChange.bind(this));
-        colorInput.element.addEventListener('change', this._updateUserConfig.bind(this));
+        colorInput.element.addEventListener('input', (e: Event) => {
+            this.settings.onChange(e.target ? (e.target as HTMLInputElement).value : '');
+        });
 
         let label = container.getById(`${this.id}-color-picker`).asPenArray().querySelector('label');
         let input = container.getById(`${this.id}-input`);
@@ -67,15 +69,7 @@ export class ColorPicker implements Component {
 
     }
 
-    private _updateUserConfig(): void {
-
-        setPathInUserConfig(this.settings.path || [], this.value).then(() => {
-            console.info(`Updated user config at path ${this.settings.path} with value ${this.value}`);
-        }).catch((error) => {
-            console.error('Error updating user config:', error);
-        });
-    }
-
+   
     private _updateColorDisplay(color: string): void {
         const boxDisplay = this.pens.getById(`${this.id}-boxdisplay`);
         if (!boxDisplay) {

@@ -19,7 +19,6 @@ export class PenguinWidget extends Widget<WidgetConfig<{}>> {
 
 
 
-        console.log(this.displayInstance);
         if (!this.displayInstance && !this.editorInstance) {
 
             this.setParent(this.pens.getById(`penguin-widget-${this.id}`));

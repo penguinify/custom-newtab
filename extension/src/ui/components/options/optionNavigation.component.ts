@@ -1,5 +1,5 @@
-import { Component, Elements, Pen, PenArray } from "../../framework/penexutils";
-import { TabWrapper } from "../../types";
+import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
+import { TabWrapper } from "../../../types";
 
 
 export class OptionNavigation implements Component {

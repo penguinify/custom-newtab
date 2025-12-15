@@ -37,7 +37,7 @@ export class CheckboxInput implements Component {
         let checkboxInput = container.getById(`${this.id}-input`);
         checkboxInput.element.addEventListener('change', this._onCheckboxChange.bind(this));
         checkboxInput.element.addEventListener('change', (e: Event) => {
-            this.settings.onChange(event.target ? (event.target as HTMLInputElement).checked : false);
+            this.settings.onChange(e.target ? (e.target as HTMLInputElement).checked : false);
         });
 
         this.pens.push(...container);

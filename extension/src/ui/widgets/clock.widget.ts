@@ -2,6 +2,7 @@
 
 import { Elements, Pen, PenArray } from "../../framework/penexutils";
 import { ClockData, UserConfig, Widget } from "../../types";
+import { strftime } from "../../utils";
 import { WidgetRegistry } from "../../widgetmanager";
 
 export class ClockWidget extends Widget<ClockData> {
@@ -13,10 +14,30 @@ export class ClockWidget extends Widget<ClockData> {
 
     render(): PenArray {
         let config: UserConfig = this.getConfig();
-        console.log('Rendering clock widget with config', this);
+        let color: string;
+        let fontFamily: string;
+        let fontWeight: string;
+        if (this.data.data.color.trim() === "") {
+            color = config.colors.textColor;
+        } else {
+            color = this.data.data.color;
+        }
+        if (this.data.data.fontFamily.trim() === "") {
+            fontFamily = config.fontFamily;
+        } else {
+            fontFamily = this.data.data.fontFamily;
+        }
+        if (this.data.data.fontWeight.trim() === "") {
+            fontWeight = "normal";
+        } else {
+            fontWeight = this.data.data.fontWeight;
+        }
+
+
+
         // dont use tailwind in custom widgets, the utitlity classes are not guaranteed to be available
         this.pens = PenArray.fromHTML(`
-        <div id="clock-widget-${this.id}"  style="font-family: ${config.fontFamily}; color: ${config.colors.textColor}">
+        <div id="clock-widget-${this.id}"  style="font-family: ${config.fontFamily}; color: ${color}; font-weight: ${fontWeight}; white-space: nowrap;">
             <span id="time-display-${this.id}" class="text-4xl">--:--:--</span>
         </div>
         `);
@@ -29,13 +50,11 @@ export class ClockWidget extends Widget<ClockData> {
 
         this._updateTime();
 
-        console.log(this.displayInstance);
         if (!this.displayInstance && !this.editorInstance) {
 
             this.setParent(this.pens.getById(`clock-widget-${this.id}`));
             this.setPosition(this.pens.getById(`clock-widget-${this.id}`));
         } else {
-            console.log('Clock widget is in editor instance, skipping position set.');
         }
 
         // this.pens is automatically added to the main app container by the framework
@@ -43,25 +62,31 @@ export class ClockWidget extends Widget<ClockData> {
     }
 
     private _updateTime() {
-        const now = new Date();
+        if (this.data.data.useStrfFormat) {
+            // use strftime format
+            this.timeDisplayPen.element.textContent = strftime(this.data.data.formatString);
+            return;
+        }
+
+        let now = new Date();
         let hours = now.getHours();
-        let minutes: number | string = now.getMinutes();
-        let seconds: number | string = now.getSeconds();
-
-        if (!this.data.data.is24Hour) {
-            hours = hours % 12 || 12; // Convert to 12-hour format
+        let minutes = now.getMinutes();
+        if (!this.data.data.militartTime) {
+            hours = hours % 12;
+            if (hours === 0) hours = 12; // handle midnight and noon
         }
-        if (minutes < 10) minutes = '0' + minutes;
-        if (seconds < 10) seconds = '0' + seconds;
-
-        let timeString = `${hours}:${minutes}`;
         if (this.data.data.showSeconds) {
-            timeString += `:${seconds}`;
+            let seconds = now.getSeconds();
+            this.timeDisplayPen.element.textContent = `${this._padZero(hours)}:${this._padZero(minutes)}:${this._padZero(seconds)}`;
+        } else {
+            this.timeDisplayPen.element.textContent = `${this._padZero(hours)}:${this._padZero(minutes)}`;
         }
-
-
-        this.timeDisplayPen.element.innerText = timeString;
     }
+
+    private _padZero(num: number): string {
+        return num < 10 ? '0' + num : num.toString();
+    }
+
 
 
     static defaultConfig(): ClockData {
@@ -77,8 +102,13 @@ export class ClockWidget extends Widget<ClockData> {
                 scale: 1
             },
             data: {
+                militartTime: false,
                 showSeconds: true,
-                is24Hour: false,
+                useStrfFormat: false,
+                formatString: "%H:%M:%S",
+                color: "",
+                fontFamily: "",
+                fontWeight: ""
             }
         };
     }

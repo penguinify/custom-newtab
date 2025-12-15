@@ -1,9 +1,10 @@
-import { UserConfig } from "../types";
+import { UserConfig, Widget } from "../types";
 import { AsyncRoute, Components, Pen, PenArray, elementGlobals } from "../framework/penexutils";
 import { getUserConfig } from "../config";
 import { applyBackgroundColor, setFavicon, setTabTitle } from "../utils";
-import { WidgetEditorRenderer } from "../ui/components/widgetEditorRenderer.component";
+import { WidgetEditorRenderer } from "../ui/components/widgetsComponents/widgetEditorRenderer.component";
 import { WidgetRegistry } from "../widgetmanager";
+import { router } from "..";
 
 
 export class NewTab extends AsyncRoute {
@@ -13,6 +14,8 @@ export class NewTab extends AsyncRoute {
     components: Components = new Components();
 
     settings!: UserConfig;
+    widgets: Widget<any>[] = [];
+    widgetsLoaded: boolean = false;
 
     constructor() {
         super();
@@ -45,12 +48,31 @@ export class NewTab extends AsyncRoute {
         let optionsButton = pens.getById('options-button');
         optionsButton.element.addEventListener('click', NewTab._openOptionsPage);
 
+        window.addEventListener('resize', this._resizeHandler.bind(this));
 
         setTimeout(() => {
+            if (!this.widgetsLoaded)
+        {
             this.loadWidgets();
+            this.widgetsLoaded = true;
+            }
         }, 0);
 
         return pens;
+    }
+
+    _resizeHandler(): void {
+        this.pens.getById('newtab-container').element.querySelectorAll('video').forEach(video => {
+            video.remove();
+        });
+        applyBackgroundColor(this.pens.getById('newtab-container'), this.settings);
+        for (let widget of this.widgets) {
+            console.log(widget);
+            if (widget.onResize) {
+                // thats why I check if widget.onResize exists typescript
+                widget.onResize();
+            }
+        }
     }
 
     private static _openOptionsPage() {
@@ -62,11 +84,12 @@ export class NewTab extends AsyncRoute {
     }
 
     loadWidgets() {
-        let widgets = this.settings.widgets || [];
-        for (let widgetConfig of widgets) {
+        for (let widgetConfig of this.settings.widgets) {
             let widgetClass = WidgetRegistry.getWidget(widgetConfig.WidgetRecordId);
             if (widgetClass) {
-                new widgetClass(widgetConfig).render();
+                this.widgets.push(new widgetClass(widgetConfig));
+                // yes, render exists typescript
+                this.widgets[this.widgets.length - 1].render();
 
             }
 

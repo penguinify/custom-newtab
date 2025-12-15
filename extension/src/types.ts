@@ -1,7 +1,7 @@
 import { CONFIG } from "./config"
 import { DEBUG_LOGGING } from "./constants"
 import { Component, Elements, Pen, PenArray } from "./framework/penexutils"
-import { OptionTab } from "./ui/components/optionTab.component"
+import { OptionTab } from "./ui/components/options/optionTab.component"
 import { generateRandomId } from "./utils"
 
 export interface UserConfig {
@@ -50,7 +50,7 @@ export type SettingOptions = {
     label: string,
     description: string,
     defaultValue: string
-    path: string[] // path in the UserConfig object
+    onChange?: (newValue: string) => void,
 } | {
     type: "dropdown",
     label: string,
@@ -64,7 +64,7 @@ export type SettingOptions = {
     label: string,
     description: string,
     defaultValue: string,
-    path: string[]
+    onChange?: (newValue: string) => void,
 } | {
     type: "file",
     label: string,
@@ -165,11 +165,38 @@ export abstract class Widget<T extends WidgetConfig<Object>> implements Componen
         return CONFIG
     }
 
+    destroy(): void {
+        this.pens.forEach(pen => {
+            pen.element.remove();
+        });
+    }
+
+    onResize(): void {
+        //default, propobly wannat override this in the widget
+        this.setPosition(this.pens[0]);
+    }
+
+
 
 }
 
+
 export type ClockData = WidgetConfig<{
+    useStrfFormat: boolean,
+    formatString: string,
     showSeconds: boolean,
-    is24Hour: boolean,
+    militartTime: boolean,
+    color: string,
+    fontFamily: string
+    fontWeight: string
+
 }>
 
+export type TextData = WidgetConfig<{
+    textContent: string,
+    fontWeight: string,
+    fontFamily: string,
+    fontSize: number,
+    color: string,
+    fontStyle: string
+}>

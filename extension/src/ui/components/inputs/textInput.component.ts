@@ -35,7 +35,9 @@ export class TextInput implements Component {
 
         let textInput = container.getById(`${this.id}-input`);
         textInput.element.addEventListener('input', this._onTextChange.bind(this));
-        textInput.element.addEventListener('change', this._updateUserConfig.bind(this));
+        textInput.element.addEventListener('input', (e: Event) => {
+            this.settings.onChange(e.target ? (e.target as HTMLInputElement).value : '');
+        });
 
         this.pens.push(...container);
 
@@ -49,15 +51,7 @@ export class TextInput implements Component {
         this.value = input.value;
     }
 
-    private _updateUserConfig(): void {
 
-
-        setPathInUserConfig(this.settings.path || [], this.value).then(() => {
-            console.info(`Updated user config at path ${this.settings.path} with value ${this.value}`);
-        }).catch((error) => {
-            console.error('Error updating user config:', error);
-        });
-    }
 
     getValue(): string {
         return this.value;
