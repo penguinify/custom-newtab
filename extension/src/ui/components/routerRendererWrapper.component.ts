@@ -51,6 +51,7 @@ export class RouterRendererWrapperComponent implements Component {
 
 
         for (let pen of routePens) {
+
             if (pen.parent === elementGlobals.mainApp) {
                 console.warn('RouterRendererWrapperComponent: pen parent is mainApp, changing to wrapperDiv');
                 pen.setParent(wrapperDiv);

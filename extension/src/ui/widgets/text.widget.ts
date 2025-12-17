@@ -1,8 +1,9 @@
 
 
 import { Elements, Pen, PenArray } from "../../framework/penexutils";
-import { TextData, UserConfig, Widget, WidgetConfig } from "../../types";
-import { WidgetRegistry } from "../../widgetmanager";
+import { UserConfig, Widget, WidgetConfig, WidgetOptionsRecord } from "../../types";
+import { WidgetRegistry } from "../../data/widgetmanager";
+import { ColorOption, TextOption } from "../widgetoptions";
 
 export class TextWidget extends Widget<WidgetConfig<TextData>> {
 
@@ -27,8 +28,8 @@ export class TextWidget extends Widget<WidgetConfig<TextData>> {
         fontStyle = this.data.data.fontStyle.trim() === "" ? "normal" : this.data.data.fontStyle;
 
         this.pens = PenArray.fromHTML(`
-        <div id="text-widget-${this.id}" style="font-family: ${config.fontFamily}; color: ${config.colors.textColor}; font-weight: ${fontWeight}; font-size: ${fontSize}; font-style: ${fontStyle}; line-height: 0;">
-            <span style="font-size: 1.5rem;">${this.data.data.textContent || "Sample Text"}</span>
+        <div id="text-widget-${this.id}" style="font-family: ${fontFamily} !important; color: ${color} !important; font-weight: ${fontWeight}; font-size: ${fontSize}; font-style: ${fontStyle};">
+            <span>${this.data.data.textContent || "Sample Text"}</span>
         </div>
         `);
 
@@ -37,8 +38,8 @@ export class TextWidget extends Widget<WidgetConfig<TextData>> {
 
         if (!this.displayInstance && !this.editorInstance) {
 
-            this.setParent(this.pens.getById(`text-widget-${this.id}`));
             this.setPosition(this.pens.getById(`text-widget-${this.id}`));
+            this.setParent(this.pens.getById(`text-widget-${this.id}`));
         } else {
         }
 
@@ -55,18 +56,29 @@ export class TextWidget extends Widget<WidgetConfig<TextData>> {
             position: {
                 x: 0,
                 y: 0,
-                scale: 1
+                scaleX: 0.5,
+                scaleY: 0.5,
             },
             data: {
                 textContent: "penguinify",
                 fontWeight: "normal",
-                fontFamily: "Arial, sans-serif",
+                fontFamily: "",
                 fontSize: 16,
                 color: "",
                 fontStyle: ""
 
 
+
             }
+        };
+    } static getWidgetOptionsRecord(): WidgetOptionsRecord {
+        return {
+            textContent: new TextOption("Text Content", "The text to display"),
+            fontWeight: new TextOption("Font Weight", "The weight of the font (e.g., normal, bold, 100, 200, etc.)"),
+            fontFamily: new TextOption("Font Family", "The font family to use (e.g., Arial, sans-serif)"),
+            fontSize: new TextOption("Font Size", "The size of the font in pixels"),
+            color: new ColorOption("Color", "The color of the text (CSS color value)"),
+            fontStyle: new TextOption("Font Style", "The style of the font (e.g., normal, italic, oblique)")
         };
     }
 
@@ -79,4 +91,12 @@ function register() {
 }
 
 export default register();
+export type TextData = WidgetConfig<{
+    textContent: string
+    fontWeight: string
+    fontFamily: string
+    fontSize: number
+    color: string
+    fontStyle: string
+}>
 

@@ -1,9 +1,10 @@
 // good first widget to look at if you're new to the codebase
 
 import { Elements, Pen, PenArray } from "../../framework/penexutils";
-import { ClockData, UserConfig, Widget } from "../../types";
+import { UserConfig, Widget, WidgetConfig, WidgetOptionsRecord } from "../../types";
 import { strftime } from "../../utils";
-import { WidgetRegistry } from "../../widgetmanager";
+import { WidgetRegistry } from "../../data/widgetmanager";
+import { CheckboxOption, ColorOption, TextOption } from "../widgetoptions";
 
 export class ClockWidget extends Widget<ClockData> {
     private timeDisplayPen!: Pen<Elements>;
@@ -99,7 +100,8 @@ export class ClockWidget extends Widget<ClockData> {
             position: {
                 x: 0,
                 y: 0,
-                scale: 1
+                scaleX: 0.5,
+                scaleY: 0.5,
             },
             data: {
                 militartTime: false,
@@ -111,6 +113,16 @@ export class ClockWidget extends Widget<ClockData> {
                 fontWeight: ""
             }
         };
+    } static getWidgetOptionsRecord(): WidgetOptionsRecord {
+        return {
+            useStrfFormat: new CheckboxOption("Use strftime Format", "If true, the clock will use the strftime format string provided below. If false, it will use the simple hour:minute(:second) format."),
+            formatString: new TextOption("Format String", "The strftime format string to use for displaying the time. Only used if 'Use strftime Format' is true."),
+            showSeconds: new CheckboxOption("Show Seconds", "If true, the clock will display seconds."),
+            militartTime: new CheckboxOption("Military Time", "If true, the clock will use 24-hour format."),
+            color: new ColorOption("Text Color", "The color of the clock text. Leave blank to use the default text color."),
+            fontFamily: new TextOption("Font Family", "The font family to use for the clock text. Leave blank to use the default font."),
+            fontWeight: new TextOption("Font Weight", "The font weight to use for the clock text (e.g., 'normal', 'bold'). Leave blank to use the default weight."),
+        }
     }
 
 
@@ -122,4 +134,16 @@ function register() {
 }
 
 export default register();
+
+
+export type ClockData = WidgetConfig<{
+    useStrfFormat: boolean
+    formatString: string
+    showSeconds: boolean
+    militartTime: boolean
+    color: string
+    fontFamily: string
+    fontWeight: string
+
+}>
 

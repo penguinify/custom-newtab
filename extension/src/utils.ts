@@ -1,4 +1,4 @@
-import { getString } from "./database";
+import { getString } from "./data/database";
 import { Elements, Pen, PenArray } from "./framework/penexutils";
 import { UserConfig } from "./types";
 
@@ -60,6 +60,19 @@ export async function applyBackgroundColor(pen: Pen<Elements>, settings: UserCon
             break;
     }
 
+}
+
+export function alterHex(hex: string, r: number, g: number, b: number): string {
+    hex = hex.replace('#', '');
+    let rHex = parseInt(hex.substring(0, 2), 16);
+    let gHex = parseInt(hex.substring(2, 4), 16);
+    let bHex = parseInt(hex.substring(4, 6), 16);
+
+    rHex = Math.min(255, Math.max(0, rHex + r));
+    gHex = Math.min(255, Math.max(0, gHex + g));
+    bHex = Math.min(255, Math.max(0, bHex + b));
+
+    return `#${rHex.toString(16).padStart(2, '0')}${gHex.toString(16).padStart(2, '0')}${bHex.toString(16).padStart(2, '0')}`;
 }
 
 export function setTabTitle(title: string) {
@@ -186,7 +199,7 @@ export function strftime(fmt: string, date: Date = new Date()): string {
             case 'H': return pad(date.getHours());
             case 'I': {
                 const h = date.getHours() % 12;
-                return pad(h === 0 ? 12 : h);
+                return h
             }
             case 'p': return date.getHours() < 12 ? 'AM' : 'PM';
             case 'M': return pad(date.getMinutes());

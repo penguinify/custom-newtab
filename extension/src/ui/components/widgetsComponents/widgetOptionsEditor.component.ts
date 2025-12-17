@@ -25,8 +25,8 @@ export class WidgetOptionsEditor implements Component {
 
     render(): PenArray {
         let container = PenArray.fromHTML(`
-<div class="w-full h-full flex flex-col gap-4 bg-black/50 fixed top-0 left-0 z-10">
-            <div id="widget-options-${this.id}" class="w-1/4 p-3 bg-black border-2 border-white flex flex-col h-full gap-3" >
+<div class="w-full h-full flex flex-col gap-4 bg-black/50 fixed top-0 left-0 z-50 text-white">
+            <div id="widget-options-${this.id}" class="w-1/4 p-3 bg-black border-r-2 border-white flex flex-col h-full gap-3 overflow-y-auto pb-16" >
 <h2 class="text-2xl">${this.title}</h2>
 <p class="mb-4 text-white/75">${this.description}</p>
 </div>
@@ -48,6 +48,7 @@ export class WidgetOptionsEditor implements Component {
         });
 
 
+        this.pens[this.pens.length - 1].element.parentElement.style.marginTop = '25px';
 
         this.hide();
 

@@ -1,6 +1,6 @@
 import { TabWrapper, UserConfig } from "../types";
 import { AsyncRoute, Components, Elements, Pen, PenArray } from "../framework/penexutils";
-import { getUserConfig, setPathInUserConfig } from "../config";
+import { getUserConfig, setPathInUserConfig } from "../data/config";
 import { OptionTab } from "../ui/components/options/optionTab.component";
 import { OptionNavigation } from "../ui/components/options/optionNavigation.component";
 import { applyBackgroundColor, setFavicon, setTabTitle } from "../utils";

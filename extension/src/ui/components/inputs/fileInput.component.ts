@@ -1,5 +1,5 @@
-import { setPathInUserConfig } from "../../../config";
-import { saveString } from "../../../database";
+import { setPathInUserConfig } from "../../../data/config";
+import { saveString } from "../../../data/database";
 import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
 import { SettingOptions } from "../../../types";
 import { convertArrayBufferToBase64, generateRandomId } from "../../../utils";

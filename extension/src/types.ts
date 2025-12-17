@@ -1,7 +1,8 @@
-import { CONFIG } from "./config"
-import { DEBUG_LOGGING } from "./constants"
+import { CONFIG } from "./data/config"
+import { DEBUG_LOGGING } from "./data/constants"
 import { Component, Elements, Pen, PenArray } from "./framework/penexutils"
 import { OptionTab } from "./ui/components/options/optionTab.component"
+import { TextOption, ColorOption, CheckboxOption } from "./ui/widgetoptions"
 import { generateRandomId } from "./utils"
 
 export interface UserConfig {
@@ -15,8 +16,6 @@ export interface UserConfig {
     // someone better than me remove the any
     widgets: WidgetConfig<any>[]
 }
-
-
 
 export type BackgroundType = {
     type: "color",
@@ -95,7 +94,8 @@ export type WidgetConfig<T extends Object> = {
 export type PositionData = {
     x: number,
     y: number
-    scale: number
+    scaleX: number,
+    scaleY: number,
 }
 
 export abstract class Widget<T extends WidgetConfig<Object>> implements Component {
@@ -128,33 +128,43 @@ export abstract class Widget<T extends WidgetConfig<Object>> implements Componen
     }
     private _applyPosition(pen: Pen<Elements>) {
 
-        console.log('Applying position for widget', this.data.WidgetRecordId, 'with data', this.data.position);
+        const parent = pen.element.parentElement;
+        if (!parent) return;
+
+        // Calculate position as percentage of parent size
+        const left = parent.clientLeft + (this.data.position.x / 100) * parent.clientWidth;
+        const top = parent.clientTop + (this.data.position.y / 100) * parent.clientHeight;
+
+        // Calculate scale ratios, clamped between 0 and 1
+        const widthRatio = parent.clientWidth / 1600;
+        const heightRatio = parent.clientHeight / 900;
+        let ratio = (widthRatio + heightRatio) / 2;
+        ratio = Math.max(0, Math.min(1, ratio));
+        const scaleX = this.data.position.scaleX * (0.1 + (10.0 - 0.1) * ratio);
+        const scaleY = this.data.position.scaleY * (0.1 + (10.0 - 0.1) * ratio);
+
+        // all factors going into the position
+        console.table({
+            parentWidth: parent.clientWidth,
+            parentHeight: parent.clientHeight,
+            xPercent: this.data.position.x,
+            yPercent: this.data.position.y,
+            calculatedLeft: left,
+            calculatedTop: top,
+            widthRatio: widthRatio,
+            heightRatio: heightRatio,
+            ratio: ratio,
+            scaleX: scaleX,
+            scaleY: scaleY
+        });
+
+        // Apply styles
         pen.element.style.position = 'absolute';
-        // the x and y are stored as a percentage of the screen size to allow for responsive design
-        console.log('Parent element dimensions:', pen.element.parentElement?.clientWidth, 'x', pen.element.parentElement?.clientHeight);
-        let calculatedX = pen.element.parentElement?.clientLeft + (this.data.position.x / 100) * pen.element.parentElement!.clientWidth;
-        let calculatedY = pen.element.parentElement?.clientTop + (this.data.position.y / 100) * pen.element.parentElement!.clientHeight;
-        console.log('Setting widget position to', calculatedX, calculatedY);
-
-        // Calculate scale based on ratio of average of parent height/900 and width/1600
-        let scale = this.data.position.scale;
-        if (pen.element.parentElement) {
-            const parentWidth = pen.element.parentElement.clientWidth;
-            const parentHeight = pen.element.parentElement.clientHeight;
-            let widthRatio = parentWidth / 1600;
-            let heightRatio = parentHeight / 900;
-            let ratio = (widthRatio + heightRatio) / 2;
-            ratio = Math.max(0, Math.min(1, ratio));
-            scale = this.data.position.scale * (0.1 + (10.0 - 0.1) * ratio);
-            scale = parseFloat(scale.toFixed(2));
-            console.log('Ratio:', ratio, 'Calculated scale:', scale);
-        }
-
-        pen.element.style.left = `${calculatedX}px`;
-        pen.element.style.top = `${calculatedY}px`;
+        pen.element.style.left = `${left}px`;
+        pen.element.style.top = `${top}px`;
         pen.element.style.transformOrigin = 'top left';
-        pen.element.style.transform = `scale(${scale})`;
-        console.log(`Widget ${this.data.WidgetRecordId} positioned at (${calculatedX}px, ${calculatedY}px) with scale ${scale}`);
+        pen.element.style.transform = `scale(${scaleX.toFixed(2)}, ${scaleY.toFixed(2)})`;
+
     }
 
     setParent(pen: Pen<Elements>) {
@@ -176,27 +186,30 @@ export abstract class Widget<T extends WidgetConfig<Object>> implements Componen
         this.setPosition(this.pens[0]);
     }
 
+    // typescript wont let me make this abstract so i gotta force it out somehow
+    static getWidgetOptionsRecord(): WidgetOptionsRecord {
+        return new Error("getWidgetOptionsRecord method not implemented on the widget, please implement this.") as any;
+    }
+
 
 
 }
 
 
-export type ClockData = WidgetConfig<{
-    useStrfFormat: boolean,
-    formatString: string,
-    showSeconds: boolean,
-    militartTime: boolean,
-    color: string,
-    fontFamily: string
-    fontWeight: string
+export abstract class WidgetOption<T> {
+    label: string
+    description: string;
 
-}>
+    constructor(label: string, description: string) {
+        this.label = label;
+        this.description = description;
+    }
 
-export type TextData = WidgetConfig<{
-    textContent: string,
-    fontWeight: string,
-    fontFamily: string,
-    fontSize: number,
-    color: string,
-    fontStyle: string
-}>
+    abstract intoSettingsOptions(defaultValue: T, onChange: (newValue: T) => void): SettingOptions;
+}
+
+export type WidgetOptionType = TextOption | ColorOption | CheckboxOption;
+
+export interface WidgetOptionsRecord {
+    [key: string]: WidgetOption<String | boolean>;
+}

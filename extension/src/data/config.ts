@@ -1,4 +1,4 @@
-import { UserConfig } from "./types"
+import { UserConfig } from "../types"
 
 const updateConfigEventDetails = {
     bubbles: false,

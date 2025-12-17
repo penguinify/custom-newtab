@@ -1,4 +1,4 @@
-import { DEBUG_LOGGING } from '../constants';
+import { DEBUG_LOGGING } from '../data/constants';
 import { setup } from './penex'
 
 type HTMLMarkup = string

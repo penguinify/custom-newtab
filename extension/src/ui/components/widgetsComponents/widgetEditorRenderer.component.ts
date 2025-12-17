@@ -2,11 +2,12 @@ import { Component, Elements, Pen, PenArray } from "../../../framework/penexutil
 
 import { SettingOptions, Widget, WidgetConfig } from "../../../types";
 import { collides, generateRandomId } from "../../../utils";
-import { WidgetRegistry } from "../../../widgetmanager";
+import { WidgetRegistry } from "../../../data/widgetmanager";
 import { Options } from "../../../routes/options";
 import { Widgets } from "../../../routes/widgets";
-import { setPathInUserConfig } from "../../../config";
+import { setPathInUserConfig } from "../../../data/config";
 import { WidgetOptionsEditor } from "./widgetOptionsEditor.component";
+import { CheckboxOption, ColorOption, TextOption } from "../../widgetoptions";
 
 export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Component {
     parent: Pen<Elements>;
@@ -39,18 +40,16 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
 
         <div id="widget-${this.id}" class="absolute z-5" data-description="Left click to move, Right click to scale, middle click to edit">
 
-            <div class="widget-content flex items-center justify-center w-full select-none">
-                <!-- Widget content will be rendered here -->
-            </div>
         </div>
         `);
 
-        this._createNewWidgetInstance();
 
 
 
         this.container = this.pens.getById(`widget-${this.id}`);
         this.container.setParent(this.parent);
+
+        this._createNewWidgetInstance();
 
         this.container.element.addEventListener('mousedown', this._onDragStart.bind(this));
         // topleft
@@ -68,33 +67,32 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
 
         // essentially just gets the name for the value, and depending on the value type, creates the appropriate SettingOptions object
         let widgetOptions: SettingOptions[] = [];
-        for (let key in this.data.data) {
-            switch (typeof this.data.data[key]) {
-                case 'boolean':
-                    widgetOptions.push({
-                        type: 'checkbox',
-                        label: key.charAt(0).toUpperCase() + key.slice(1),
-                        description: `Toggle ${key}`,
-                        defaultValue: this.data.data[key] as unknown as boolean,
-                        onChange: this.changeData.bind(this, key)
 
-                    });
-                    break;
-                case 'string':
-                    widgetOptions.push({
-                        type: 'text',
-                        label: key.charAt(0).toUpperCase() + key.slice(1),
-                        description: `Set ${key}`,
-                        defaultValue: this.data.data[key] as unknown as string,
-                        onChange: this.changeData.bind(this, key)
-
-                    });
-                    break;
-
-                default:
-                    console.warn(`Unsupported data type for widget option: ${key} (${typeof this.data.data[key]})`);
+        let widgetOptionsRecords = this.widget.getWidgetOptionsRecord(); // it does fucking exist stop playing with me ts
+        for (let key of Object.keys(widgetOptionsRecords)) {
+            let currentValue = widgetOptionsRecords[key as keyof typeof widgetOptionsRecords];
+            console.log('Generating option for key:', key, 'with value:', currentValue);
+            if (currentValue instanceof TextOption) {
+                widgetOptions.push(currentValue.intoSettingsOptions(
+                    this.data.data[key as string] as string,
+                    this.changeData.bind(this, key)
+                ));
+            } else if (currentValue instanceof ColorOption) {
+                widgetOptions.push(currentValue.intoSettingsOptions(
+                    this.data.data[key as string] as string,
+                    this.changeData.bind(this, key)
+                ));
+            } else if (currentValue instanceof CheckboxOption) {
+                widgetOptions.push(currentValue.intoSettingsOptions(
+                    this.data.data[key as string] as boolean,
+                    this.changeData.bind(this, key)
+                ));
             }
         }
+
+
+        console.log('Generated widget options:', widgetOptions);
+
 
         return widgetOptions;
     }
@@ -102,7 +100,7 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
     _createNewWidgetInstance() {
         this.widgetInstance = new this.widget(this.data);
         this.widgetInstance.editorInstance = true;
-        this.widgetInstance.render()[0].setParent(this.pens.querySelector('.widget-content')!);
+        this.widgetInstance.render()[0].setParent(this.container!);
     }
 
     changeData<V>(key: string, value: V) {
@@ -151,20 +149,30 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
     }
 
     _setPositionFromData() {
-        const previewRect = Widgets.previewDOMRect;
+         const previewRect = Widgets.previewDOMRect;
         if (!previewRect) return;
 
+        // Calculate position as percentage of parent size
         const left = previewRect.left + (this.data.position.x / 100) * previewRect.width;
         const top = previewRect.top + (this.data.position.y / 100) * previewRect.height;
-        this.container.element.style.left = left + 'px';
-        this.container.element.style.top = top + 'px';
-        // Calculate scale based on ratio of average of previewRect.width/1600 and previewRect.height/900
+
+        // Calculate scale ratios, clamped between 0 and 1
         const widthRatio = previewRect.width / 1600;
         const heightRatio = previewRect.height / 900;
         let ratio = (widthRatio + heightRatio) / 2;
-        let scale = this.data.position.scale * (0.1 + (10.0 - 0.1) * ratio);
-        this.container.element.style.transform = `scale(${scale.toFixed(2)})`;
+        ratio = Math.max(0, Math.min(1, ratio));
+        const scaleX = this.data.position.scaleX * (0.1 + (10.0 - 0.1) * ratio);
+        const scaleY = this.data.position.scaleY * (0.1 + (10.0 - 0.1) * ratio);
+
+        // Apply styles
+        this.container.element.style.position = 'absolute';
+        this.container.element.style.left = `${left}px`;
+        this.container.element.style.top = `${top}px`;
+        this.container.element.style.transformOrigin = 'top left';
+        this.container.element.style.transform = `scale(${scaleX.toFixed(2)}, ${scaleY.toFixed(2)})`;
     }
+
+
 
     _scaleDrag(e: MouseEvent) {
         let shiftY = (<MouseEvent>e).clientY - this.container.element.getBoundingClientRect().top
@@ -172,26 +180,30 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
         const previewRect = Widgets.previewDOMRect;
 
 
+        // console.log('[SCALE] Drag start', {
+        //     shiftX,
+        //     shiftY,
+        //     initialScaleX,
+        //     initialScaleY,
+        //     previewRect,
+        //     data: this.data
+        // });
 
         const onMouseMove = (moveEvent: MouseEvent) => {
-            let mouseX = moveEvent.pageX;
-            let mouseY = moveEvent.pageY;
+            let mouseX = moveEvent.clientX;
+            let mouseY = moveEvent.clientY;
 
             // hypotenuse from beginning point to current point
             let deltaX = mouseX - (this.container.element.getBoundingClientRect().left + shiftX);
             let deltaY = mouseY - (this.container.element.getBoundingClientRect().top + shiftY);
-            let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
             // if mouseX and mouseY are to the left or above the starting point, make distance negative
             if (mouseX < this.container.element.getBoundingClientRect().left + shiftX) {
-                distance = -distance;
+                deltaX = -Math.abs(deltaX);
             }
-
-
-            // logarithmic scale adjustment, so as distance decreases, the scale changes less
-            let unAdjustedScale = this.data.position.scale + (distance / 500); // 300 is an arbitrary value to control sensitivity
-
-
+            if (mouseY < this.container.element.getBoundingClientRect().top + shiftY) {
+                deltaY = -Math.abs(deltaY);
+            }
 
             // Calculate ratio based on average of currentHeight/900 and currentWidth/1600
             const widthRatio = previewRect.width / 1600;
@@ -202,21 +214,64 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
             ratio = Math.max(0, Math.min(1, ratio));
 
             // Scale goes from 0.1 (0%) to 10.0 (100%)
-            let newScale = unAdjustedScale * (0.1 + (10.0 - 0.1) * ratio);
+            let newScaleX, newScaleY;
+            if (moveEvent.shiftKey) {
+                // Uniform scaling
+                let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                if (mouseX < this.container.element.getBoundingClientRect().left + shiftX) {
+                    distance = -distance;
+                }
+                let unAdjustedScale = this.data.position.scaleX + (distance / 500);
+                newScaleX = newScaleY = unAdjustedScale * (0.1 + (10.0 - 0.1) * ratio);
+            } else {
+                // Independent scaling
+                let unAdjustedScaleX = this.data.position.scaleX + (deltaX / 500);
+                let unAdjustedScaleY = this.data.position.scaleY + (deltaY / 500);
+                newScaleX = unAdjustedScaleX * (0.1 + (10.0 - 0.1) * ratio);
+                newScaleY = unAdjustedScaleY * (0.1 + (10.0 - 0.1) * ratio);
+            }
 
             if (WidgetEditorRenderer.SnapToGrid) {
                 const interval = WidgetEditorRenderer.SnapInterval;
                 const snapStep = interval / 100; // e.g., 10/100 = 0.1
-                newScale = Math.round(newScale / snapStep) * snapStep;
+                newScaleX = Math.round(newScaleX / snapStep) * snapStep;
+                newScaleY = Math.round(newScaleY / snapStep) * snapStep;
             }
 
-            newScale = parseFloat(newScale.toFixed(2)); // Limit to 2 decimal places
-            this.container.element.style.transform = `scale(${newScale})`;
-            this.container.element.setAttribute('data-description', `scale: ${newScale}`);
+            newScaleX = parseFloat(newScaleX.toFixed(2));
+            newScaleY = parseFloat(newScaleY.toFixed(2));
 
-            this.data.position = {
-                ...this.data.position,
-                scale: unAdjustedScale
+            console.log('[SCALE] MouseMove', {
+                mouseX,
+                mouseY,
+                deltaX,
+                deltaY,
+                ratio,
+                newScaleX,
+                newScaleY,
+                shiftKey: moveEvent.shiftKey,
+                snapToGrid: WidgetEditorRenderer.SnapToGrid,
+                snapInterval: WidgetEditorRenderer.SnapInterval,
+                previewRect,
+
+                data: this.data
+            });
+
+            this.container.element.style.transform = `scale(${newScaleX}, ${newScaleY})`;
+            this.container.element.setAttribute('data-description', `scaleX: ${newScaleX}, scaleY: ${newScaleY}`);
+
+            if (moveEvent.shiftKey) {
+                this.data.position = {
+                    ...this.data.position,
+                    scaleX: newScaleX / (0.1 + (10.0 - 0.1) * ratio),
+                    scaleY: newScaleY / (0.1 + (10.0 - 0.1) * ratio)
+                }
+            } else {
+                this.data.position = {
+                    ...this.data.position,
+                    scaleX: newScaleX / (0.1 + (10.0 - 0.1) * ratio),
+                    scaleY: newScaleY / (0.1 + (10.0 - 0.1) * ratio)
+                }
             }
 
             shiftX = moveEvent.clientX - this.container.element.getBoundingClientRect().left;
@@ -227,12 +282,16 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
             document.removeEventListener('mousemove', onMouseMove);
             document.removeEventListener('mouseup', removeListeners);
             this.container.element.removeAttribute('data-description');
+            console.log('[SCALE] Drag end', {
+                data: this.data
+            });
         };
 
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', removeListeners);
     }
     _moveDrag(e: MouseEvent) {
+
         let shiftY = (<MouseEvent>e).clientY - this.container.element.getBoundingClientRect().top
         let shiftX = (<MouseEvent>e).clientX - this.container.element.getBoundingClientRect().left
 
@@ -264,7 +323,8 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
             this.data.position = {
                 x: previewRect ? ((left - previewRect.left) / previewRect.width) * 100 : 0,
                 y: previewRect ? ((top - previewRect.top) / previewRect.height) * 100 : 0,
-                scale: this.data.position.scale
+                scaleX: this.data.position.scaleX,
+                scaleY: this.data.position.scaleY
             };
 
         };

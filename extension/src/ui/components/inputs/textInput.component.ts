@@ -1,4 +1,4 @@
-import { setPathInUserConfig } from "../../../config";
+import { setPathInUserConfig } from "../../../data/config";
 import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
 import { SettingOptions } from "../../../types";
 import { generateRandomId } from "../../../utils";

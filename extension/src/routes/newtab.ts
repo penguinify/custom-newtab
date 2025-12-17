@@ -1,9 +1,9 @@
 import { UserConfig, Widget } from "../types";
 import { AsyncRoute, Components, Pen, PenArray, elementGlobals } from "../framework/penexutils";
-import { getUserConfig } from "../config";
+import { getUserConfig } from "../data/config";
 import { applyBackgroundColor, setFavicon, setTabTitle } from "../utils";
 import { WidgetEditorRenderer } from "../ui/components/widgetsComponents/widgetEditorRenderer.component";
-import { WidgetRegistry } from "../widgetmanager";
+import { WidgetRegistry } from "../data/widgetmanager";
 import { router } from "..";
 
 
@@ -19,6 +19,11 @@ export class NewTab extends AsyncRoute {
 
     constructor() {
         super();
+
+        document.body.style.margin = '0';
+        document.body.style.padding = '0';
+        document.body.style.height = '100vh';
+        document.body.style.width = '100vw';
 
         this.pensAsync = this.renderAsync();
 

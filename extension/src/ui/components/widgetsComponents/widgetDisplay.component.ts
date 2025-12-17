@@ -1,6 +1,6 @@
 import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
 import { Widget, WidgetConfig } from "../../../types";
-import { WidgetRegistry } from "../../../widgetmanager";
+import { WidgetRegistry } from "../../../data/widgetmanager";
 import { WidgetEditorRenderer } from "./widgetEditorRenderer.component";
 
 export class WidgetDisplay<T extends WidgetConfig<Object>> implements Component {
@@ -23,7 +23,7 @@ export class WidgetDisplay<T extends WidgetConfig<Object>> implements Component 
 
 
 
-        <div id="widget-${widgetInstance.id}" class="flex flex-col gap-4 cursor-move" data-description="${this.widget.defaultConfig().description}">
+        <div id="widget-${widgetInstance.id}" class="flex flex-col gap-4 cursor-move text-white" data-description="${this.widget.defaultConfig().description}">
 
             <h3 class="text-xl">${widgetInstance.data.WidgetRecordId}</h3>
             <div class="widget-content flex items-center justify-center w-full py-8 border-2 border-white rounded-lg">

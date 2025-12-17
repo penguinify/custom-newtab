@@ -1,7 +1,7 @@
 // Used to test migration of configuration files so I don't bomb users' real configs
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { mergeUserConfig, defaultUserConfig, isUserConfig, saveUserConfig } from "../config";
+import { mergeUserConfig, defaultUserConfig, isUserConfig, saveUserConfig } from "../data/config";
 import type { BackgroundType, UserConfig } from "../types";
 
 describe("UserConfig merging", () => {

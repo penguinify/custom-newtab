@@ -1,5 +1,5 @@
 import { DEBUG_LOGGING } from "./constants";
-import { Widget, WidgetConfig } from "./types";
+import { Widget, WidgetConfig } from "../types";
 
 
 

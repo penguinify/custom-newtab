@@ -3,7 +3,7 @@ import { NewTab } from "./routes/newtab";
 import { Options } from "./routes/options";
 import { Widgets } from "./routes/widgets";
 import Layout from "./ui/layout";
-import { WidgetRegistry } from "./widgetmanager";
+import { WidgetRegistry } from "./data/widgetmanager";
 
 
 // at some point i will fix this damn router that I made two years ago

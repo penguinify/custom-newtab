@@ -1,10 +1,11 @@
-import { TextData, UserConfig, WidgetConfig } from "../types";
+import { UserConfig, WidgetConfig } from "../types";
+import { TextData } from "../ui/widgets/text.widget";
 import { AsyncRoute, Components, Pen, PenArray, elementGlobals } from "../framework/penexutils";
-import { getUserConfig } from "../config";
-import { applyBackgroundColor, setFavicon, setTabTitle } from "../utils";
+import { getUserConfig } from "../data/config";
+import { alterHex, applyBackgroundColor, setFavicon, setTabTitle } from "../utils";
 import { WidgetsDrawer } from "../ui/components/widgetsComponents/widgetsDrawer.component";
 import { DescriptionBox } from "../ui/components/descriptionBox.component";
-import { WidgetRegistry } from "../widgetmanager";
+import { WidgetRegistry } from "../data/widgetmanager";
 import { WidgetDisplay } from "../ui/components/widgetsComponents/widgetDisplay.component";
 import { WidgetEditorRenderer } from "../ui/components/widgetsComponents/widgetEditorRenderer.component";
 import { TextWidget } from "../ui/widgets/text.widget";
@@ -15,7 +16,7 @@ export class Widgets extends AsyncRoute {
     pensAsync: Promise<PenArray>;
     path = '/widgets.html';
     components: Components = new Components();
-    widgetsDrawerComponent: WidgetsDrawer;
+    widgetsDrawerComponent!: WidgetsDrawer;
 
     static previewDOMRect: DOMRect;
 
@@ -35,7 +36,7 @@ export class Widgets extends AsyncRoute {
         setFavicon();
 
         let pens = PenArray.fromHTML(`
-<div class="flex flex-col items-center justify-center h-3/4 w-3/4 absolute right-0" id="editor-container">
+<div class="flex flex-col items-center justify-center h-3/4 w-3/4 absolute right-0 text-white" id="editor-container">
 </div>
 
 
@@ -57,7 +58,13 @@ export class Widgets extends AsyncRoute {
 
         setTimeout(() => {
             // for some reason this is needed to get the correct rect, idk why, chromes webtools are so broken
-            Widgets.previewDOMRect = this.pens.getById('editor-container').element.getBoundingClientRect();
+            const editorContainer = this.pens.getById('editor-container');
+            Widgets.previewDOMRect = editorContainer.element.getBoundingClientRect();
+
+            editorContainer.element.oncontextmenu = (e) => {
+                e.preventDefault();
+                return false;
+            };
 
             this._loadSavedWidgets();
 
@@ -74,9 +81,6 @@ export class Widgets extends AsyncRoute {
 
         let main_element = document.body as HTMLElement;
         main_element.style.fontFamily = this.settings.fontFamily || 'Arial, sans-serif';
-        document.body.style.backgroundColor = '#000000';
-
-        document.body.style.setProperty('color', '#FFFFFF', 'important');
     }
 
     private _addDescriptionBox() {
