@@ -69,7 +69,7 @@ export class ColorPicker implements Component {
 
     }
 
-   
+
     private _updateColorDisplay(color: string): void {
         const boxDisplay = this.pens.getById(`${this.id}-boxdisplay`);
         if (!boxDisplay) {

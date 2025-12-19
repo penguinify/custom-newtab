@@ -14,5 +14,10 @@ export default defineManifest({
         "bookmarks",
         "geolocation",
         "storage"
+    ], web_accessible_resources: [
+        {
+            "resources": ["widgets.html", "assets/*"],
+            "matches": ["<all_urls>"] // idgaf
+        }
     ]
 });

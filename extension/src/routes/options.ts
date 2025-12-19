@@ -193,7 +193,12 @@ export class Options extends AsyncRoute {
                 label: 'Manage Widgets',
                 description: 'Open the widget management interface.',
                 onClick: () => {
-                    window.location.href = '/widgets.html';
+                    try {
+                        
+                    window.location.href = chrome.runtime.getURL('widgets.html');
+                    } catch (error) {
+                        window.location.href = 'widgets.html'; 
+                    }
                 }
             }
 

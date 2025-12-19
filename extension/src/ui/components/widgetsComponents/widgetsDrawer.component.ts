@@ -63,6 +63,8 @@ e       `);
         } as SettingOptions
         );
 
+
+
         this.widgetSaveButton.render();
         snappingCheckbox.render();
         snappingValue.render();

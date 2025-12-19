@@ -19,9 +19,11 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
     widgetInstance: Widget<T>;
     data: T;
     widgetOptionsEditorInstance: WidgetOptionsEditor | null = null;
+    widgetEffectsContainer: Pen<Elements>;
     static WidgetEditorInstances: WidgetEditorRenderer<any>[] = [];
     static SnapToGrid: boolean = true;
     static SnapInterval: number = 10;
+    static instanceSelected: WidgetEditorRenderer<any> | null = null;
 
     constructor(parent: Pen<Elements>, widget: new (data: T) => Widget<T>, data: T) {
         this.data = data;
@@ -39,6 +41,8 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
 
 
         <div id="widget-${this.id}" class="absolute z-5" data-description="Left click to move, Right click to scale, middle click to edit">
+            <div id="widget-effects-${this.id}" class="top-0 left-0 w-full h-full absolute pointer-events-none box-border"></div>
+</div>
 
         </div>
         `);
@@ -52,6 +56,10 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
         this._createNewWidgetInstance();
 
         this.container.element.addEventListener('mousedown', this._onDragStart.bind(this));
+
+        this.widgetEffectsContainer = this.pens.getById(`widget-effects-${this.id}`);
+        this.widgetEffectsContainer.element.style.setProperty('mix-blend-mode', 'difference', 'important');
+
         // topleft
         this.container.element.style.transformOrigin = 'top left';
         this.container.element.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -61,6 +69,21 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
         WidgetEditorRenderer.WidgetEditorInstances.push(this);
 
         return this.pens;
+    }
+
+    handleSelectedState(): void {
+        const handleOffClick = (e: MouseEvent) => {
+            if (e.target !== this.container.element && !this.container.element.contains(e.target as Node)) {
+                document.removeEventListener('mousedown', handleOffClick);
+
+                this.widgetEffectsContainer.element.style.backgroundColor = 'transparent';
+                WidgetEditorRenderer.instanceSelected = null;
+            }
+        }
+        this.widgetEffectsContainer.element.style.backgroundColor = 'white';
+
+        document.addEventListener('mousedown', handleOffClick);
+
     }
 
     _generateWidgetOptionsList(): SettingOptions[] {
@@ -131,8 +154,14 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
     }
 
 
-    _onDragStart(e: DragEvent) {
+    _onDragStart(e: MouseEvent) {
         e.preventDefault();
+
+        if (WidgetEditorRenderer.instanceSelected !== this) {
+            WidgetEditorRenderer.instanceSelected?.container.element.classList.remove('border-4', 'border-blue-500');
+            WidgetEditorRenderer.instanceSelected = this;
+            this.handleSelectedState();
+        }
         switch (e.button) {
             case 0: // Left mouse button
                 this._moveDrag(e as unknown as MouseEvent);
@@ -149,7 +178,7 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>> implements Com
     }
 
     _setPositionFromData() {
-         const previewRect = Widgets.previewDOMRect;
+        const previewRect = Widgets.previewDOMRect;
         if (!previewRect) return;
 
         // Calculate position as percentage of parent size

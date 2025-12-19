@@ -65,6 +65,17 @@ export class Widgets extends AsyncRoute {
                 e.preventDefault();
                 return false;
             };
+        document.addEventListener('keydown', (e: KeyboardEvent) => {
+            if (e.key === 'Delete' || e.key === 'Backspace' && (e.target as HTMLElement).tagName !== 'INPUT' && (e.target as HTMLElement).tagName !== 'TEXTAREA') {
+                WidgetEditorRenderer.WidgetEditorInstances.forEach(instance => {
+                    if (WidgetEditorRenderer.instanceSelected === instance) {
+                        instance.destroy();
+                        WidgetEditorRenderer.instanceSelected = null;
+                    }
+                });
+
+            }
+        });
 
             this._loadSavedWidgets();
 

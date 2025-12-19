@@ -16,7 +16,8 @@ export default defineConfig(async () => ({
         rollupOptions: {
             input: {
                 main: './extension/index.html',
-                nested: "./extension/options.html",
+                options: "./extension/options.html",
+                widgets: "./extension/widgets.html",
             },
         },
 
