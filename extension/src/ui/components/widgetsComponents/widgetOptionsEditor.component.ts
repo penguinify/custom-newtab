@@ -1,6 +1,6 @@
 import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
 import { SettingOptions } from "../../../types";
-import { generateRandomId } from "../../../utils";
+import { generateRandomId } from "../../../utils/id";
 import { ButtonInput } from "../inputs/buttonInput.component";
 import { CheckboxInput } from "../inputs/checkboxInput.component";
 import { ColorPicker } from "../inputs/colorPicker.component";

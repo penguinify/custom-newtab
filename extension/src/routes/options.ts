@@ -3,7 +3,9 @@ import { AsyncRoute, Components, Elements, Pen, PenArray } from "../framework/pe
 import { getUserConfig, setPathInUserConfig } from "../data/config";
 import { OptionTab } from "../ui/components/options/optionTab.component";
 import { OptionNavigation } from "../ui/components/options/optionNavigation.component";
-import { applyBackgroundColor, setFavicon, setTabTitle } from "../utils";
+import { applyBackgroundColor } from "../utils/color";
+import { setFavicon } from "../utils/tabfeatures";
+import { setTabTitle } from "../utils/tabfeatures";
 import { RouterRendererWrapperComponent } from "../ui/components/routerRendererWrapper.component";
 import { NewTab } from "./newtab";
 import { DescriptionBox } from "../ui/components/descriptionBox.component";

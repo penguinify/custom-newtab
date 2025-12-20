@@ -1,7 +1,9 @@
 import { UserConfig, Widget } from "../types";
 import { AsyncRoute, Components, Pen, PenArray, elementGlobals } from "../framework/penexutils";
 import { getUserConfig } from "../data/config";
-import { applyBackgroundColor, setFavicon, setTabTitle } from "../utils";
+import { applyBackgroundColor } from "../utils/color";
+import { setFavicon } from "../utils/tabfeatures";
+import { setTabTitle } from "../utils/tabfeatures";
 import { WidgetEditorRenderer } from "../ui/components/widgetsComponents/widgetEditorRenderer.component";
 import { WidgetRegistry } from "../data/widgetmanager";
 import { router } from "..";

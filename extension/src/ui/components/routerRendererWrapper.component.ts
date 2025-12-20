@@ -2,7 +2,7 @@
 
 import { AsyncRoute, Component, Elements, Pen, PenArray, Route, Router, elementGlobals } from "../../framework/penexutils";
 import { Options } from "../../routes/options";
-import { generateRandomId } from "../../utils";
+import { generateRandomId } from "../../utils/id";
 
 
 export class RouterRendererWrapperComponent implements Component {

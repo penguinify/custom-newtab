@@ -3,7 +3,7 @@ import { DEBUG_LOGGING } from "./data/constants"
 import { Component, Elements, Pen, PenArray } from "./framework/penexutils"
 import { OptionTab } from "./ui/components/options/optionTab.component"
 import { TextOption, ColorOption, CheckboxOption } from "./ui/widgetoptions"
-import { generateRandomId } from "./utils"
+import { generateRandomId } from "./utils/id"
 
 export interface UserConfig {
     background: BackgroundType,

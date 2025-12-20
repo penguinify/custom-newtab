@@ -2,9 +2,11 @@
 
 import { Elements, Pen, PenArray } from "../../framework/penexutils";
 import { UserConfig, Widget, WidgetConfig, WidgetOptionsRecord } from "../../types";
-import { strftime } from "../../utils";
+import { strftime } from "../../utils/strftime";
 import { WidgetRegistry } from "../../data/widgetmanager";
 import { CheckboxOption, ColorOption, TextOption } from "../widgetoptions";
+import { TextOptionMixin } from "../widgetmixins";
+import { applyMixins } from "../../utils/mixins";
 
 export class ClockWidget extends Widget<ClockData> {
     private timeDisplayPen!: Pen<Elements>;
@@ -15,35 +17,20 @@ export class ClockWidget extends Widget<ClockData> {
 
     render(): PenArray {
         let config: UserConfig = this.getConfig();
-        let color: string;
-        let fontFamily: string;
-        let fontWeight: string;
-        if (this.data.data.color.trim() === "") {
-            color = config.colors.textColor;
-        } else {
-            color = this.data.data.color;
-        }
-        if (this.data.data.fontFamily.trim() === "") {
-            fontFamily = config.fontFamily;
-        } else {
-            fontFamily = this.data.data.fontFamily;
-        }
-        if (this.data.data.fontWeight.trim() === "") {
-            fontWeight = "normal";
-        } else {
-            fontWeight = this.data.data.fontWeight;
-        }
+
 
 
 
         // dont use tailwind in custom widgets, the utitlity classes are not guaranteed to be available
         this.pens = PenArray.fromHTML(`
-        <div id="clock-widget-${this.id}"  style="font-family: ${config.fontFamily}; color: ${color}; font-weight: ${fontWeight}; white-space: nowrap;">
+        <div id="clock-widget-${this.id}"  style="white-space: nowrap;">
             <span id="time-display-${this.id}" class="text-4xl">--:--:--</span>
         </div>
         `);
 
         this.timeDisplayPen = this.pens.getById(`time-display-${this.id}`);
+
+        this.applyTextOptions(this.pens.getById(`clock-widget-${this.id}`), config);
 
         window.setInterval(() => {
             this._updateTime();
@@ -108,10 +95,9 @@ export class ClockWidget extends Widget<ClockData> {
                 showSeconds: true,
                 useStrfFormat: false,
                 formatString: "%H:%M:%S",
-                color: "",
-                fontFamily: "",
-                fontWeight: ""
+                ...TextOptionMixin.defaultOptions(),
             }
+            
         };
     } static getWidgetOptionsRecord(): WidgetOptionsRecord {
         return {
@@ -119,9 +105,7 @@ export class ClockWidget extends Widget<ClockData> {
             formatString: new TextOption("Format String", "The strftime format string to use for displaying the time. Only used if 'Use strftime Format' is true."),
             showSeconds: new CheckboxOption("Show Seconds", "If true, the clock will display seconds."),
             militartTime: new CheckboxOption("Military Time", "If true, the clock will use 24-hour format."),
-            color: new ColorOption("Text Color", "The color of the clock text. Leave blank to use the default text color."),
-            fontFamily: new TextOption("Font Family", "The font family to use for the clock text. Leave blank to use the default font."),
-            fontWeight: new TextOption("Font Weight", "The font weight to use for the clock text (e.g., 'normal', 'bold'). Leave blank to use the default weight."),
+            ...TextOptionMixin.getWidgetOptionsRecord()
         }
     }
 
@@ -147,3 +131,6 @@ export type ClockData = WidgetConfig<{
 
 }>
 
+export interface ClockWidget extends TextOptionMixin {}
+
+applyMixins(ClockWidget, [TextOptionMixin]);

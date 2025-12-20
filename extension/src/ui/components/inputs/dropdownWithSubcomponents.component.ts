@@ -1,7 +1,7 @@
 import { setPathInUserConfig } from "../../../data/config";
 import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
 import { SettingOptions } from "../../../types";
-import { generateRandomId } from "../../../utils";
+import { generateRandomId } from "../../../utils/id";
 import { ButtonInput } from "./buttonInput.component";
 import { CheckboxInput } from "./checkboxInput.component";
 import { ColorPicker } from "./colorPicker.component";

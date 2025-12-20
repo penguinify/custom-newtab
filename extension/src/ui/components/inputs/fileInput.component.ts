@@ -2,7 +2,8 @@ import { setPathInUserConfig } from "../../../data/config";
 import { saveString } from "../../../data/database";
 import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
 import { SettingOptions } from "../../../types";
-import { convertArrayBufferToBase64, generateRandomId } from "../../../utils";
+import { generateRandomId } from "../../../utils/id";
+import { convertArrayBufferToBase64 } from "../../../data/database";
 
 export class FileInput implements Component {
     pens: PenArray = new PenArray();

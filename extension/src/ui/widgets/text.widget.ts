@@ -2,6 +2,8 @@ import { Elements, Pen, PenArray } from "../../framework/penexutils";
 import { UserConfig, Widget, WidgetConfig, WidgetOptionsRecord } from "../../types";
 import { WidgetRegistry } from "../../data/widgetmanager";
 import { ColorOption, TextOption } from "../widgetoptions";
+import { TextOptionMixin } from "../widgetmixins";
+import { applyMixins } from "../../utils/mixins";
 
 export class TextWidget extends Widget<WidgetConfig<TextData>> {
 
@@ -13,27 +15,15 @@ export class TextWidget extends Widget<WidgetConfig<TextData>> {
         // idk why, but typescript is being weird in this file, just ignore the errors, and all the other ones because it is not worth the time
         let config: UserConfig = this.getConfig();
 
-        let fontFamily: string;
-        let color: string;
-        let fontWeight: string;
-        let fontSize: string;
-        let fontStyle: string;
-        let customCSS: string;
-
-        fontFamily = this.data.data.fontFamily.trim() === "" ? config.fontFamily : this.data.data.fontFamily;
-        color = this.data.data.color.trim() === "" ? config.colors.textColor : this.data.data.color;
-        fontWeight = this.data.data.fontWeight.trim() === "" ? "normal" : this.data.data.fontWeight;
-        fontSize = this.data.data.fontSize && this.data.data.fontSize > 0 ? `${this.data.data.fontSize}px` : "16px";
-        fontStyle = this.data.data.fontStyle.trim() === "" ? "normal" : this.data.data.fontStyle;
-        customCSS = this.data.data.customCSS?.trim() || "";
 
         this.pens = PenArray.fromHTML(`
-        <div id="text-widget-${this.id}" style="font-family: ${fontFamily} !important; color: ${color} !important; font-weight: ${fontWeight}; font-size: ${fontSize}; font-style: ${fontStyle}; ${customCSS}">
+        <div id="text-widget-${this.id}" >
             <span>${this.data.data.textContent || "Sample Text"}</span>
         </div>
         `);
 
 
+        this.applyTextOptions(this.pens.getById(`text-widget-${this.id}`), config);
 
 
         if (!this.displayInstance && !this.editorInstance) {
@@ -61,23 +51,14 @@ export class TextWidget extends Widget<WidgetConfig<TextData>> {
             },
             data: {
                 textContent: "penguinify",
-                fontWeight: "normal",
-                fontFamily: "",
-                fontSize: 16,
-                color: "",
-                fontStyle: "",
-                customCSS: ""
+                ...TextOptionMixin.defaultOptions()
+
             }
         };
     } static getWidgetOptionsRecord(): WidgetOptionsRecord {
         return {
             textContent: new TextOption("Text Content", "The text to display"),
-            fontWeight: new TextOption("Font Weight", "The weight of the font (e.g., normal, bold, 100, 200, etc.)"),
-            fontFamily: new TextOption("Font Family", "The font family to use (e.g., Arial, sans-serif)"),
-            fontSize: new TextOption("Font Size", "The size of the font in pixels"),
-            color: new ColorOption("Color", "The color of the text (CSS color value)"),
-            fontStyle: new TextOption("Font Style", "The style of the font (e.g., normal, italic, oblique)"),
-            customCSS: new TextOption("Custom CSS", "Additional CSS to apply to the widget container")
+            ...TextOptionMixin.getWidgetOptionsRecord()
         };
     }
 
@@ -99,3 +80,7 @@ export type TextData = WidgetConfig<{
     fontStyle: string
     customCSS: string
 }>
+
+export interface TextWidget extends TextOptionMixin { }
+
+applyMixins(TextWidget, [TextOptionMixin]);

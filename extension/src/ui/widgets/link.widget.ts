@@ -1,34 +1,22 @@
 import { PenArray } from "../../framework/penexutils";
 import { UserConfig, Widget, WidgetConfig, WidgetOptionsRecord } from "../../types";
 import { WidgetRegistry } from "../../data/widgetmanager";
-import { ColorOption, TextOption, BooleanOption, CheckboxOption } from "../widgetoptions";
+import { ColorOption, TextOption, CheckboxOption } from "../widgetoptions";
+import { TextOptionMixin } from "../widgetmixins";
+import { applyMixins } from "../../utils/mixins";
 
 export class LinkWidget extends Widget<WidgetConfig<LinkData>> {
-
     constructor(data: WidgetConfig<LinkData>) {
         super(data);
     }
 
     render(): PenArray {
-        // idk why, but typescript is being weird in this file, just ignore the errors, and all the other ones because it is not worth the time
         let config: UserConfig = this.getConfig();
 
-        let fontFamily: string;
-        let color: string;
-        let fontWeight: string;
-        let fontSize: string;
-        let fontStyle: string;
-        let customCSS: string;
         let textDecoration: string;
         let url: string;
         let openInNewTab: boolean;
 
-        fontFamily = this.data.data.fontFamily?.trim() === "" ? config.fontFamily : this.data.data.fontFamily;
-        color = this.data.data.color?.trim() === "" ? config.colors.textColor : this.data.data.color;
-        fontWeight = this.data.data.fontWeight?.trim() === "" ? "normal" : this.data.data.fontWeight;
-        fontSize = this.data.data.fontSize && this.data.data.fontSize > 0 ? `${this.data.data.fontSize}px` : "16px";
-        fontStyle = this.data.data.fontStyle?.trim() === "" ? "normal" : this.data.data.fontStyle;
-        customCSS = this.data.data.customCSS?.trim() || "";
         textDecoration = this.data.data.textDecoration?.trim() === "" ? "underline" : this.data.data.textDecoration;
         url = this.data.data.url?.trim() === "" ? "penguinify.github.io" : this.data.data.url;
         openInNewTab = typeof this.data.data.openInNewTab === "boolean" ? this.data.data.openInNewTab : false;
@@ -36,8 +24,8 @@ export class LinkWidget extends Widget<WidgetConfig<LinkData>> {
         const targetAttr = openInNewTab ? ` target="_blank" rel="noopener noreferrer"` : "";
 
         this.pens = PenArray.fromHTML(`
-        <div id="text-widget-${this.id}" style="font-family: ${fontFamily} !important; color: ${color} !important; font-weight: ${fontWeight}; font-size: ${fontSize}; font-style: ${fontStyle}; text-decoration: ${textDecoration}; ${customCSS}">
-            <a href="${url}"${targetAttr} style="color: inherit; text-decoration: inherit;">
+        <div id="text-widget-${this.id}">
+            <a href="${url}"${targetAttr}>
                 ${this.data.data.textContent || "Sample Text"}
             </a>
         </div>
@@ -48,6 +36,15 @@ export class LinkWidget extends Widget<WidgetConfig<LinkData>> {
             this.setParent(this.pens.getById(`text-widget-${this.id}`));
         } else {
             this.pens[1].element.style.pointerEvents = "none";
+        }
+
+        this.applyTextOptions(this.pens.getById(`text-widget-${this.id}`), config);
+
+        // Apply link-specific styles to the <a> element
+        const linkElem = this.pens.getById(`text-widget-${this.id}`).asPenArray().querySelector("a");
+        if (linkElem) {
+            linkElem.element.style.color = "inherit";
+            linkElem.element.style.textDecoration = textDecoration;
         }
 
         return this.pens;
@@ -66,12 +63,7 @@ export class LinkWidget extends Widget<WidgetConfig<LinkData>> {
             },
             data: {
                 textContent: "penguinify",
-                fontWeight: "normal",
-                fontFamily: "",
-                fontSize: 16,
-                color: "",
-                fontStyle: "",
-                customCSS: "",
+                ...TextOptionMixin.defaultOptions(),
                 url: "penguinify.github.io",
                 openInNewTab: false,
                 textDecoration: "underline"
@@ -82,14 +74,9 @@ export class LinkWidget extends Widget<WidgetConfig<LinkData>> {
     static getWidgetOptionsRecord(): WidgetOptionsRecord {
         return {
             textContent: new TextOption("Text Content", "The text to display"),
-            fontWeight: new TextOption("Font Weight", "The weight of the font (e.g., normal, bold, 100, 200, etc.)"),
-            fontFamily: new TextOption("Font Family", "The font family to use (e.g., Arial, sans-serif)"),
-            fontSize: new TextOption("Font Size", "The size of the font in pixels"),
-            color: new ColorOption("Color", "The color of the text (CSS color value)"),
-            fontStyle: new TextOption("Font Style", "The style of the font (e.g., normal, italic, oblique)"),
-            customCSS: new TextOption("Custom CSS", "Additional CSS to apply to the widget container"),
+            ...TextOptionMixin.getWidgetOptionsRecord(),
             url: new TextOption("URL", "The URL to link to"),
-            openInNewTab: new CheckboxOptionOption("Open in New Tab", "Open the link in a new browser tab"),
+            openInNewTab: new CheckboxOption("Open in New Tab", "Open the link in a new browser tab"),
             textDecoration: new TextOption("Text Decoration", "CSS text-decoration property (e.g., underline, none)")
         };
     }
@@ -98,7 +85,6 @@ export class LinkWidget extends Widget<WidgetConfig<LinkData>> {
 function register() {
     WidgetRegistry.registerWidget("link-widget", LinkWidget);
 }
-
 export default register();
 
 export type LinkData = {
@@ -113,3 +99,6 @@ export type LinkData = {
     openInNewTab: boolean;
     textDecoration: string;
 };
+
+export interface LinkWidget extends TextOptionMixin {}
+applyMixins(LinkWidget, [TextOptionMixin]);

@@ -1,7 +1,7 @@
 import { setPathInUserConfig } from "../../../data/config";
 import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
 import { SettingOptions } from "../../../types";
-import { generateRandomId } from "../../../utils";
+import { generateRandomId } from "../../../utils/id";
 
 export class CheckboxInput implements Component {
     pens: PenArray = new PenArray();

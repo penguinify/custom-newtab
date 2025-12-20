@@ -1,7 +1,8 @@
 import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
 
 import { SettingOptions, Widget, WidgetConfig } from "../../../types";
-import { collides, generateRandomId } from "../../../utils";
+import { generateRandomId } from "../../../utils/id";
+import { collides } from "../../../utils/collides";
 import { WidgetRegistry } from "../../../data/widgetmanager";
 import { Options } from "../../../routes/options";
 import { Widgets } from "../../../routes/widgets";
