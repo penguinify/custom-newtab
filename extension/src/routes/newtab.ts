@@ -1,43 +1,43 @@
-import { UserConfig, Widget } from "../types";
-import { AsyncRoute, Components, Pen, PenArray, elementGlobals } from "../framework/penexutils";
 import { getUserConfig } from "../data/config";
-import { applyBackgroundColor } from "../utils/color";
-import { setFavicon } from "../utils/tabfeatures";
-import { setTabTitle } from "../utils/tabfeatures";
-import { WidgetEditorRenderer } from "../ui/components/widgetsComponents/widgetEditorRenderer.component";
 import { WidgetRegistry } from "../data/widgetmanager";
-import { router } from "..";
-
+import {
+	AsyncRoute,
+	Components,
+	elementGlobals,
+	PenArray,
+} from "../framework/penexutils";
+import type { UserConfig, Widget } from "../types";
+import { applyBackgroundColor } from "../utils/color";
+import { setFavicon, setTabTitle } from "../utils/tabfeatures";
 
 export class NewTab extends AsyncRoute {
-    pens: PenArray = new PenArray();
-    pensAsync: Promise<PenArray>;
-    path = '/index.html';
-    components: Components = new Components();
+	pens: PenArray = new PenArray();
+	pensAsync: Promise<PenArray>;
+	path = "/index.html";
+	components: Components = new Components();
 
-    settings!: UserConfig;
-    widgets: Widget<any>[] = [];
-    widgetsLoaded: boolean = false;
+	settings!: UserConfig;
+	widgets: Widget<any>[] = [];
+	widgetsLoaded: boolean = false;
 
-    constructor() {
-        super();
+	constructor() {
+		super();
 
-        document.body.style.margin = '0';
-        document.body.style.padding = '0';
-        document.body.style.height = '100vh';
-        document.body.style.width = '100vw';
+		document.body.style.margin = "0";
+		document.body.style.padding = "0";
+		document.body.style.height = "100vh";
+		document.body.style.width = "100vw";
 
-        this.pensAsync = this.renderAsync();
+		this.pensAsync = this.renderAsync();
+	}
 
-    }
+	async renderAsync(): Promise<PenArray> {
+		this.settings = await getUserConfig();
 
-    async renderAsync(): Promise<PenArray> {
-        this.settings = await getUserConfig();
+		setTabTitle(this.settings.tabTitle || "new tab");
+		setFavicon();
 
-        setTabTitle(this.settings.tabTitle || 'new tab');
-        setFavicon();
-
-        let pens = PenArray.fromHTML(`
+		const pens = PenArray.fromHTML(`
 <div class="flex flex-col items-center justify-center h-full w-full" id="newtab-container">
 </div>
 <div class="fixed bottom-4 right-4 z-10">
@@ -47,63 +47,59 @@ export class NewTab extends AsyncRoute {
 
 `);
 
-        let container = pens.getById('newtab-container');
-        container.setParent(elementGlobals.mainApp);
+		const container = pens.getById("newtab-container");
+		container.setParent(elementGlobals.mainApp);
 
-        applyBackgroundColor(container, this.settings);
+		applyBackgroundColor(container, this.settings);
 
-        let optionsButton = pens.getById('options-button');
-        optionsButton.element.addEventListener('click', NewTab._openOptionsPage);
+		const optionsButton = pens.getById("options-button");
+		optionsButton.element.addEventListener("click", NewTab._openOptionsPage);
 
-        window.addEventListener('resize', this._resizeHandler.bind(this));
+		window.addEventListener("resize", this._resizeHandler.bind(this));
 
-        setTimeout(() => {
-            if (!this.widgetsLoaded)
-        {
-            this.loadWidgets();
-            this.widgetsLoaded = true;
-            }
-        }, 0);
+		setTimeout(() => {
+			if (!this.widgetsLoaded) {
+				this.loadWidgets();
+				this.widgetsLoaded = true;
+			}
+		}, 0);
 
-        return pens;
-    }
+		return pens;
+	}
 
-    _resizeHandler(): void {
-        this.pens.getById('newtab-container').element.querySelectorAll('video').forEach(video => {
-            video.remove();
-        });
-        applyBackgroundColor(this.pens.getById('newtab-container'), this.settings);
-        for (let widget of this.widgets) {
-            console.log(widget);
-            if (widget.onResize) {
-                // thats why I check if widget.onResize exists typescript
-                widget.onResize();
-            }
-        }
-    }
+	_resizeHandler(): void {
+		this.pens
+			.getById("newtab-container")
+			.element.querySelectorAll("video")
+			.forEach((video) => {
+				video.remove();
+			});
+		applyBackgroundColor(this.pens.getById("newtab-container"), this.settings);
+		for (const widget of this.widgets) {
+			console.log(widget);
+			if (widget.onResize) {
+				// thats why I check if widget.onResize exists typescript
+				widget.onResize();
+			}
+		}
+	}
 
-    private static _openOptionsPage() {
-        if (chrome.runtime && chrome.runtime.openOptionsPage) {
-            chrome.runtime.openOptionsPage();
-        } else {
-            window.open('options.html', '_blank');
-        }
-    }
+	private static _openOptionsPage() {
+		if (chrome.runtime?.openOptionsPage) {
+			chrome.runtime.openOptionsPage();
+		} else {
+			window.open("options.html", "_blank");
+		}
+	}
 
-    loadWidgets() {
-        for (let widgetConfig of this.settings.widgets) {
-            let widgetClass = WidgetRegistry.getWidget(widgetConfig.WidgetRecordId);
-            if (widgetClass) {
-                this.widgets.push(new widgetClass(widgetConfig));
-                // yes, render exists typescript
-                this.widgets[this.widgets.length - 1].render();
-
-            }
-
-        }
-
-    }
-
-
-
+	loadWidgets() {
+		for (const widgetConfig of this.settings.widgets) {
+			const widgetClass = WidgetRegistry.getWidget(widgetConfig.WidgetRecordId);
+			if (widgetClass) {
+				this.widgets.push(new widgetClass(widgetConfig));
+				// yes, render exists typescript
+				this.widgets[this.widgets.length - 1].render();
+			}
+		}
+	}
 }

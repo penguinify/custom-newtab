@@ -1,66 +1,69 @@
 // does what it says on the tin, it wraps a router inside of itself, i think its pretty nifty but you can decide for yoursel
 
-import { AsyncRoute, Component, Elements, Pen, PenArray, Route, Router, elementGlobals } from "../../framework/penexutils";
-import { Options } from "../../routes/options";
+import {
+	AsyncRoute,
+	type Component,
+	type Elements,
+	elementGlobals,
+	type Pen,
+	PenArray,
+	type Route,
+} from "../../framework/penexutils";
 import { generateRandomId } from "../../utils/id";
 
-
 export class RouterRendererWrapperComponent implements Component {
-    private parent: Pen<Elements>;
-    route: Route | AsyncRoute;
-    private styles: string;
-    public pens: PenArray = new PenArray();
-    public id: string = generateRandomId(4);
-    public initialized: boolean = false;
+	private parent: Pen<Elements>;
+	route: Route | AsyncRoute;
+	private styles: string;
+	public pens: PenArray = new PenArray();
+	public id: string = generateRandomId(4);
+	public initialized: boolean = false;
 
-    constructor(parent: Pen<Elements>, router: Route | AsyncRoute, styles: string) {
-        this.route = router;
-        this.parent = parent;
-        this.styles = styles;
+	constructor(
+		parent: Pen<Elements>,
+		router: Route | AsyncRoute,
+		styles: string,
+	) {
+		this.route = router;
+		this.parent = parent;
+		this.styles = styles;
+	}
 
-
-    }
-
-
-    // creates the wrapper
-    init() {
-        this.pens = PenArray.fromHTML(`
+	// creates the wrapper
+	init() {
+		this.pens = PenArray.fromHTML(`
         <div class="${this.styles}" id="router-wrapper-${this.id}" data-description="Preview">
         </div>
 
 `);
-    }
+	}
 
+	async renderAsync(): Promise<PenArray> {
+		let routePens: PenArray;
+		if (this.route instanceof AsyncRoute) {
+			routePens = await this.route.renderAsync();
+		} else {
+			routePens = this.route.render();
+		}
 
-    async renderAsync(): Promise<PenArray> {
-        let routePens: PenArray;
-        if (this.route instanceof AsyncRoute) {
-            routePens = await this.route.renderAsync();
-        } else {
-            routePens = this.route.render();
-        }
+		if (!this.initialized) {
+			this.init();
+			this.initialized = true;
+		}
 
-        if (!this.initialized) {
-            this.init();
-            this.initialized = true;
-        }
+		const wrapperDiv = this.pens[0];
+		wrapperDiv.element.innerHTML = "";
+		wrapperDiv.setParent(this.parent);
 
-        let wrapperDiv = this.pens[0];
-        wrapperDiv.element.innerHTML = '';
-        wrapperDiv.setParent(this.parent);
+		for (const pen of routePens) {
+			if (pen.parent === elementGlobals.mainApp) {
+				console.warn(
+					"RouterRendererWrapperComponent: pen parent is mainApp, changing to wrapperDiv",
+				);
+				pen.setParent(wrapperDiv);
+			}
+		}
 
-
-        for (let pen of routePens) {
-
-            if (pen.parent === elementGlobals.mainApp) {
-                console.warn('RouterRendererWrapperComponent: pen parent is mainApp, changing to wrapperDiv');
-                pen.setParent(wrapperDiv);
-            }
-        }
-
-
-        return this.pens;
-    }
+		return this.pens;
+	}
 }
-
-

@@ -1,25 +1,32 @@
-import { Component, Elements, Pen, PenArray } from "../../../framework/penexutils";
-import { Widget, WidgetConfig } from "../../../types";
-import { WidgetRegistry } from "../../../data/widgetmanager";
+import {
+	type Component,
+	type Elements,
+	Pen,
+	PenArray,
+} from "../../../framework/penexutils";
+import type { Widget, WidgetConfig } from "../../../types";
 import { WidgetEditorRenderer } from "./widgetEditorRenderer.component";
 
-export class WidgetDisplay<T extends WidgetConfig<Object>> implements Component {
-    parent: Pen<Elements>;
-    pens: PenArray = new PenArray();
-    widget: new (data: T) => Widget<T>;
+export class WidgetDisplay<T extends WidgetConfig<Object>>
+	implements Component
+{
+	parent: Pen<Elements>;
+	pens: PenArray = new PenArray();
+	widget: new (
+		data: T,
+	) => Widget<T>;
 
-    constructor(parent: Pen<Elements>, widget: new (data: T) => Widget<T>) {
-        this.widget = widget;
-        this.parent = parent;
-    }
+	constructor(parent: Pen<Elements>, widget: new (data: T) => Widget<T>) {
+		this.widget = widget;
+		this.parent = parent;
+	}
 
-    render(): PenArray {
+	render(): PenArray {
+		//@ts-expect-error yes it does exist, dont play with me
+		const widgetInstance = new this.widget(this.widget.defaultConfig());
+		widgetInstance.displayInstance = true;
 
-        //@ts-ignore yes it does exist, dont play with me
-        let widgetInstance = new this.widget(this.widget.defaultConfig());
-        widgetInstance.displayInstance = true;
-
-        this.pens = PenArray.fromHTML(`
+		this.pens = PenArray.fromHTML(`
 
 
 
@@ -32,18 +39,25 @@ export class WidgetDisplay<T extends WidgetConfig<Object>> implements Component 
         </div>
         `);
 
-        widgetInstance.render()[0].setParent(this.pens.querySelector('.widget-content')!);
+		widgetInstance
+			.render()[0]
+			.setParent(this.pens.querySelector(".widget-content")!);
 
+		this.pens
+			.querySelector(".widget-content")
+			?.element.addEventListener("click", this._createWidgetEditor.bind(this));
 
-        this.pens.querySelector('.widget-content')!.element.addEventListener('click', this._createWidgetEditor.bind(this));
+		this.pens.getById(`widget-${widgetInstance.id}`).setParent(this.parent);
 
-        this.pens.getById(`widget-${widgetInstance.id}`).setParent(this.parent);
+		return this.pens;
+	}
 
-        return this.pens;
-    }
-
-    _createWidgetEditor() {
-        //@ts-ignore yes it does exist, dont play with me
-        new WidgetEditorRenderer<T>(Pen.fromElement(document.body), this.widget, this.widget.defaultConfig());
-    }
+	_createWidgetEditor() {
+		//@ts-expect-error yes it does exist, dont play with me
+		new WidgetEditorRenderer<T>(
+			Pen.fromElement(document.body),
+			this.widget,
+			this.widget.defaultConfig(),
+		);
+	}
 }

@@ -1,123 +1,115 @@
-import { UserConfig, WidgetConfig } from "../types";
-import { TextData } from "../ui/widgets/text.widget";
-import { AsyncRoute, Components, Pen, PenArray, elementGlobals } from "../framework/penexutils";
 import { getUserConfig } from "../data/config";
-import { applyBackgroundColor } from "../utils/color";
-import { setFavicon } from "../utils/tabfeatures";
-import { setTabTitle } from "../utils/tabfeatures";
-import { alterHex } from "../utils/color";
-import { WidgetsDrawer } from "../ui/components/widgetsComponents/widgetsDrawer.component";
-import { DescriptionBox } from "../ui/components/descriptionBox.component";
 import { WidgetRegistry } from "../data/widgetmanager";
-import { WidgetDisplay } from "../ui/components/widgetsComponents/widgetDisplay.component";
+import {
+	AsyncRoute,
+	Components,
+	elementGlobals,
+	Pen,
+	PenArray,
+} from "../framework/penexutils";
+import type { UserConfig } from "../types";
+import { DescriptionBox } from "../ui/components/descriptionBox.component";
 import { WidgetEditorRenderer } from "../ui/components/widgetsComponents/widgetEditorRenderer.component";
-import { TextWidget } from "../ui/widgets/text.widget";
-
+import { WidgetsDrawer } from "../ui/components/widgetsComponents/widgetsDrawer.component";
+import { applyBackgroundColor } from "../utils/color";
+import { setFavicon, setTabTitle } from "../utils/tabfeatures";
 
 export class Widgets extends AsyncRoute {
-    pens: PenArray = new PenArray();
-    pensAsync: Promise<PenArray>;
-    path = '/widgets.html';
-    components: Components = new Components();
-    widgetsDrawerComponent!: WidgetsDrawer;
+	pens: PenArray = new PenArray();
+	pensAsync: Promise<PenArray>;
+	path = "/widgets.html";
+	components: Components = new Components();
+	widgetsDrawerComponent!: WidgetsDrawer;
 
-    static previewDOMRect: DOMRect;
+	static previewDOMRect: DOMRect;
 
-    settings!: UserConfig;
+	settings!: UserConfig;
 
-    constructor() {
-        super();
+	constructor() {
+		super();
 
-        this.pensAsync = this.renderAsync();
-    }
+		this.pensAsync = this.renderAsync();
+	}
 
+	async renderAsync(): Promise<PenArray> {
+		this.settings = await getUserConfig();
 
-    async renderAsync(): Promise<PenArray> {
-        this.settings = await getUserConfig();
+		setTabTitle(this.settings.tabTitle || "new tab");
+		setFavicon();
 
-        setTabTitle(this.settings.tabTitle || 'new tab');
-        setFavicon();
-
-        let pens = PenArray.fromHTML(`
+		const pens = PenArray.fromHTML(`
 <div class="flex flex-col items-center justify-center h-3/4 w-3/4 absolute right-0 text-white" id="editor-container">
 </div>
 
 
 `);
 
-        let container = pens.getById('editor-container');
-        container.setParent(elementGlobals.mainApp);
+		const container = pens.getById("editor-container");
+		container.setParent(elementGlobals.mainApp);
 
-        WidgetEditorRenderer.WidgetEditorInstances = [];
+		WidgetEditorRenderer.WidgetEditorInstances = [];
 
-        this.widgetsDrawerComponent = new WidgetsDrawer();
+		this.widgetsDrawerComponent = new WidgetsDrawer();
 
-        this.components.add(this.widgetsDrawerComponent);
+		this.components.add(this.widgetsDrawerComponent);
 
+		this._addDescriptionBox();
 
+		setTimeout(() => {
+			// for some reason this is needed to get the correct rect, idk why, chromes webtools are so broken
+			const editorContainer = this.pens.getById("editor-container");
+			Widgets.previewDOMRect = editorContainer.element.getBoundingClientRect();
 
+			editorContainer.element.oncontextmenu = (e) => {
+				e.preventDefault();
+				return false;
+			};
+			document.addEventListener("keydown", (e: KeyboardEvent) => {
+				if (
+					e.key === "Delete" ||
+					(e.key === "Backspace" &&
+						(e.target as HTMLElement).tagName !== "INPUT" &&
+						(e.target as HTMLElement).tagName !== "TEXTAREA")
+				) {
+					WidgetEditorRenderer.WidgetEditorInstances.forEach((instance) => {
+						if (WidgetEditorRenderer.instanceSelected === instance) {
+							instance.destroy();
+							WidgetEditorRenderer.instanceSelected = null;
+						}
+					});
+				}
+			});
 
-        this._addDescriptionBox();
+			this._loadSavedWidgets();
+		}, 0);
 
-        setTimeout(() => {
-            // for some reason this is needed to get the correct rect, idk why, chromes webtools are so broken
-            const editorContainer = this.pens.getById('editor-container');
-            Widgets.previewDOMRect = editorContainer.element.getBoundingClientRect();
+		return pens;
+	}
 
-            editorContainer.element.oncontextmenu = (e) => {
-                e.preventDefault();
-                return false;
-            };
-        document.addEventListener('keydown', (e: KeyboardEvent) => {
-            if (e.key === 'Delete' || e.key === 'Backspace' && (e.target as HTMLElement).tagName !== 'INPUT' && (e.target as HTMLElement).tagName !== 'TEXTAREA') {
-                WidgetEditorRenderer.WidgetEditorInstances.forEach(instance => {
-                    if (WidgetEditorRenderer.instanceSelected === instance) {
-                        instance.destroy();
-                        WidgetEditorRenderer.instanceSelected = null;
-                    }
-                });
+	onRoute(): void {
+		const container = this.pens.getById("editor-container");
+		applyBackgroundColor(container, this.settings);
 
-            }
-        });
+		const main_element = document.body as HTMLElement;
+		main_element.style.fontFamily =
+			this.settings.fontFamily || "Arial, sans-serif";
+	}
 
-            this._loadSavedWidgets();
+	private _addDescriptionBox() {
+		this.components.add(new DescriptionBox());
+	}
 
-
-        }, 0);
-
-        return pens;
-    }
-
-    onRoute(): void {
-
-        let container = this.pens.getById('editor-container');
-        applyBackgroundColor(container, this.settings);
-
-        let main_element = document.body as HTMLElement;
-        main_element.style.fontFamily = this.settings.fontFamily || 'Arial, sans-serif';
-    }
-
-    private _addDescriptionBox() {
-        this.components.add(new DescriptionBox());
-    }
-
-
-    private _routeToOptions() {
-        // works ig lol
-        window.location.href = '/options.html';
-    }
-
-    private _loadSavedWidgets() {
-        let widgets = this.settings.widgets || [];
-        for (let widgetConfig of widgets) {
-            let widgetClass = WidgetRegistry.getWidget(widgetConfig.WidgetRecordId);
-            if (widgetClass) {
-                new WidgetEditorRenderer<typeof widgetConfig>(Pen.fromElement(document.body), widgetClass, widgetConfig);
-
-            }
-
-        }
-    }
-
-
+	private _loadSavedWidgets() {
+		const widgets = this.settings.widgets || [];
+		for (const widgetConfig of widgets) {
+			const widgetClass = WidgetRegistry.getWidget(widgetConfig.WidgetRecordId);
+			if (widgetClass) {
+				new WidgetEditorRenderer<typeof widgetConfig>(
+					Pen.fromElement(document.body),
+					widgetClass,
+					widgetConfig,
+				);
+			}
+		}
+	}
 }

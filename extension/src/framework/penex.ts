@@ -1,4 +1,4 @@
-import { Components, elementGlobals } from './penexutils'
+import { type Components, elementGlobals } from "./penexutils";
 
 // Default layout
 const defaultLayout = `
@@ -6,44 +6,49 @@ const defaultLayout = `
             <h1>Welcome to penex ui framework</h1>
             <h2>@penguinify</h2>
         </div>
-    `
+    `;
 
-function setup(app: string, layout: string = defaultLayout, components?: Components) {
+function setup(
+	app: string,
+	layout: string = defaultLayout,
+	components?: Components,
+) {
+	document.body.innerHTML = layout + document.body.innerHTML;
 
-    document.body.innerHTML = layout + document.body.innerHTML
+	const mainApp = document.getElementById(app);
 
-    let mainApp = document.getElementById(app)
+	if (mainApp === null) {
+		throw new Error("Could not find app element");
+	}
 
-    if (mainApp === null) {
-        throw new Error('Could not find app element')
-    }
+	// debug hide
+	document.addEventListener("keydown", (e) => {
+		switch (e.key) {
+			case "\\":
+				if (mainApp === null) return;
+				mainApp.style.display =
+					mainApp.style.display === "none" ? "flex" : "none";
+				break;
+			case "F3":
+				alert("penex ui framework is loaded");
+				break;
+		}
+	});
 
-    // debug hide
-    document.addEventListener('keydown', (e) => {
-        switch (e.key) {
-            case '\\':
-                if (mainApp === null) return
-                mainApp.style.display = mainApp.style.display === 'none' ? 'flex' : 'none'
-                break
-            case 'F3':
-                alert('penex ui framework is loaded')
-                break
-        }
-    })
+	if (components === undefined) {
+		document.body.style.visibility = "visible";
+		return;
+	}
+	for (let i = 0; i < components.pens.length; i++) {
+		try {
+			if (components.pens[i].parent === elementGlobals.mainApp)
+				mainApp.appendChild(components.pens[i].element);
+		} catch (e) {
+			throw `Error: ${e} at component ${components.pens[i]}`;
+		}
+	}
 
-    if (components === undefined) {
-        document.body.style.visibility = 'visible';
-        return
-    }
-    for (let i = 0; i < components.pens.length; i++) {
-        try {
-            if (components.pens[i].parent === elementGlobals.mainApp) mainApp.appendChild(components.pens[i].element)
-        } catch (e) {
-            throw 'Error: ' + e + ' at component ' + components.pens[i]
-        }
-    }
-
-    return
+	return;
 }
 
-export { setup }
+export { setup };
