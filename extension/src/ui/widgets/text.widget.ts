@@ -1,5 +1,3 @@
-
-
 import { Elements, Pen, PenArray } from "../../framework/penexutils";
 import { UserConfig, Widget, WidgetConfig, WidgetOptionsRecord } from "../../types";
 import { WidgetRegistry } from "../../data/widgetmanager";
@@ -20,15 +18,17 @@ export class TextWidget extends Widget<WidgetConfig<TextData>> {
         let fontWeight: string;
         let fontSize: string;
         let fontStyle: string;
+        let customCSS: string;
 
         fontFamily = this.data.data.fontFamily.trim() === "" ? config.fontFamily : this.data.data.fontFamily;
         color = this.data.data.color.trim() === "" ? config.colors.textColor : this.data.data.color;
         fontWeight = this.data.data.fontWeight.trim() === "" ? "normal" : this.data.data.fontWeight;
         fontSize = this.data.data.fontSize && this.data.data.fontSize > 0 ? `${this.data.data.fontSize}px` : "16px";
         fontStyle = this.data.data.fontStyle.trim() === "" ? "normal" : this.data.data.fontStyle;
+        customCSS = this.data.data.customCSS?.trim() || "";
 
         this.pens = PenArray.fromHTML(`
-        <div id="text-widget-${this.id}" style="font-family: ${fontFamily} !important; color: ${color} !important; font-weight: ${fontWeight}; font-size: ${fontSize}; font-style: ${fontStyle};">
+        <div id="text-widget-${this.id}" style="font-family: ${fontFamily} !important; color: ${color} !important; font-weight: ${fontWeight}; font-size: ${fontSize}; font-style: ${fontStyle}; ${customCSS}">
             <span>${this.data.data.textContent || "Sample Text"}</span>
         </div>
         `);
@@ -65,10 +65,8 @@ export class TextWidget extends Widget<WidgetConfig<TextData>> {
                 fontFamily: "",
                 fontSize: 16,
                 color: "",
-                fontStyle: ""
-
-
-
+                fontStyle: "",
+                customCSS: ""
             }
         };
     } static getWidgetOptionsRecord(): WidgetOptionsRecord {
@@ -78,7 +76,8 @@ export class TextWidget extends Widget<WidgetConfig<TextData>> {
             fontFamily: new TextOption("Font Family", "The font family to use (e.g., Arial, sans-serif)"),
             fontSize: new TextOption("Font Size", "The size of the font in pixels"),
             color: new ColorOption("Color", "The color of the text (CSS color value)"),
-            fontStyle: new TextOption("Font Style", "The style of the font (e.g., normal, italic, oblique)")
+            fontStyle: new TextOption("Font Style", "The style of the font (e.g., normal, italic, oblique)"),
+            customCSS: new TextOption("Custom CSS", "Additional CSS to apply to the widget container")
         };
     }
 
@@ -98,5 +97,5 @@ export type TextData = WidgetConfig<{
     fontSize: number
     color: string
     fontStyle: string
+    customCSS: string
 }>
-
