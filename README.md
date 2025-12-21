@@ -27,7 +27,7 @@ whos it for? everyone who has a clear vision for how their new tab should look l
 - Editor update/rewrite
 - Custom widget development (you will like make your own widgets and stuff)
 - Better performance and faster load times on ntp.
-- More unified options, so like all widgets with text can just import something and have the options auto-populate and apply. this would lwk be lit so I don't have to repeat so much code
+- ~~More unified options, so like all widgets with text can just import something and have the options auto-populate and apply. this would lwk be lit so I don't have to repeat so much code~~ finished this and added mixins so now I can feel like I write java
 
 ## Related
 
