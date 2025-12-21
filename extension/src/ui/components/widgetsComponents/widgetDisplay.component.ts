@@ -34,14 +34,16 @@ export class WidgetDisplay<T extends WidgetConfig<Object>>
 
             <h3 class="text-xl">${widgetInstance.data.WidgetRecordId}</h3>
             <div class="widget-content flex items-center justify-center w-full py-8 border-2 border-white rounded-lg">
+<div class="widget-content-inner w-full h-full flex items-center justify-center">
                 <!-- Widget content will be rendered here -->
+</div>
             </div>
         </div>
         `);
 
 		widgetInstance
 			.render()[0]
-			.setParent(this.pens.querySelector(".widget-content")!);
+			.setParent(this.pens.querySelector(".widget-content-inner")!);
 
 		this.pens
 			.querySelector(".widget-content")
