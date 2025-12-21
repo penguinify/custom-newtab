@@ -7,9 +7,10 @@ import {
 	Pen,
 	PenArray,
 } from "../framework/penexutils";
-import type { UserConfig } from "../types";
+import type { UserConfig, WidgetConfig, WidgetOption } from "../types";
 import { DescriptionBox } from "../ui/components/descriptionBox.component";
 import { WidgetEditorRenderer } from "../ui/components/widgetsComponents/widgetEditorRenderer.component";
+import { WidgetLayer } from "../ui/components/widgetsComponents/widgetLayer.component";
 import { WidgetsDrawer } from "../ui/components/widgetsComponents/widgetsDrawer.component";
 import { applyBackgroundColor } from "../utils/color";
 import { setFavicon, setTabTitle } from "../utils/tabfeatures";
@@ -20,6 +21,7 @@ export class Widgets extends AsyncRoute {
 	path = "/widgets.html";
 	components: Components = new Components();
 	widgetsDrawerComponent!: WidgetsDrawer;
+    widgetsLayerComponent!: WidgetLayer;
 
 	static previewDOMRect: DOMRect;
 
@@ -38,21 +40,19 @@ export class Widgets extends AsyncRoute {
 		setFavicon();
 
 		const pens = PenArray.fromHTML(`
-<div class="flex flex-col items-center justify-center h-3/4 w-3/4 absolute right-0 text-white" id="editor-container">
+<div class="flex flex-col items-center justify-center top-0 h-3/4 w-3/4 absolute right-0 text-white" id="editor-container">
 </div>
-
 
 `);
 
-		const container = pens.getById("editor-container");
-		container.setParent(elementGlobals.mainApp);
 
 		WidgetEditorRenderer.WidgetEditorInstances = [];
 
 		this.widgetsDrawerComponent = new WidgetsDrawer();
-
+        this.widgetsLayerComponent = new WidgetLayer();
 		this.components.add(this.widgetsDrawerComponent);
 
+            this.components.add(this.widgetsLayerComponent);
 		this._addDescriptionBox();
 
 		setTimeout(() => {
@@ -93,23 +93,30 @@ export class Widgets extends AsyncRoute {
 		const main_element = document.body as HTMLElement;
 		main_element.style.fontFamily =
 			this.settings.fontFamily || "Arial, sans-serif";
+        main_element.style.overflow = "hidden";
 	}
 
 	private _addDescriptionBox() {
 		this.components.add(new DescriptionBox());
 	}
 
+    _renderEditorWidget(widgetConfig: WidgetConfig<any>) {
+        const widgetClass = WidgetRegistry.getWidget(widgetConfig.WidgetRecordId);
+        if (widgetClass) {
+            new WidgetEditorRenderer<typeof widgetConfig>(
+                Pen.fromElement(document.body),
+                widgetClass,
+                widgetConfig,
+            );
+        }
+    }
+    _renderEditorWidgets(widgets: WidgetConfig<any>[]) {
+        for (const widgetConfig of widgets) {
+            this._renderEditorWidget(widgetConfig);
+        }
+    }
 	private _loadSavedWidgets() {
 		const widgets = this.settings.widgets || [];
-		for (const widgetConfig of widgets) {
-			const widgetClass = WidgetRegistry.getWidget(widgetConfig.WidgetRecordId);
-			if (widgetClass) {
-				new WidgetEditorRenderer<typeof widgetConfig>(
-					Pen.fromElement(document.body),
-					widgetClass,
-					widgetConfig,
-				);
-			}
-		}
+        this._renderEditorWidgets(widgets);
 	}
 }

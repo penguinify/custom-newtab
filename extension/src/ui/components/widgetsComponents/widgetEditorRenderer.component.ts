@@ -23,6 +23,10 @@ import {
 } from "../../widgetoptions";
 import { WidgetOptionsEditor } from "./widgetOptionsEditor.component";
 
+export const WidgetInstancesUpdateEvent = new CustomEvent("widget-instances-updated", {
+    detail: {},
+});
+
 export class WidgetEditorRenderer<T extends WidgetConfig<Object>>
     implements Component {
     parent: Pen<Elements>;
@@ -95,6 +99,7 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>>
 
         WidgetEditorRenderer.WidgetEditorInstances.push(this);
 
+        window.dispatchEvent(WidgetInstancesUpdateEvent);
         return this.pens;
     }
 
@@ -114,6 +119,18 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>>
         this.widgetEffectsContainer.element.style.backgroundColor = "white";
 
         document.addEventListener("mousedown", handleOffClick);
+    }
+
+    _selectInstance(): void {
+        if (WidgetEditorRenderer.instanceSelected === this) return;
+
+        WidgetEditorRenderer.instanceSelected?.container.element.classList.remove(
+            "border-4",
+            "border-blue-500",
+        );
+
+        WidgetEditorRenderer.instanceSelected = this;
+        this.handleSelectedState();
     }
 
     _generateWidgetOptionsList(): SettingOptions[] {
@@ -210,14 +227,8 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>>
     _onDragStart(e: MouseEvent) {
         e.preventDefault();
 
-        if (WidgetEditorRenderer.instanceSelected !== this) {
-            WidgetEditorRenderer.instanceSelected?.container.element.classList.remove(
-                "border-4",
-                "border-blue-500",
-            );
-            WidgetEditorRenderer.instanceSelected = this;
-            this.handleSelectedState();
-        }
+        this._selectInstance();
+
         switch (e.button) {
             case 0: // Left mouse button
                 this._moveDrag(e as unknown as MouseEvent);
@@ -231,7 +242,6 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>>
                 break;
         }
     }
-
     _setPositionFromData() {
         const previewRect = Widgets.previewDOMRect;
         if (!previewRect) return;
@@ -471,6 +481,8 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>>
             WidgetEditorRenderer.WidgetEditorInstances.filter(
                 (instance) => instance !== this,
             );
+
+        window.dispatchEvent(WidgetInstancesUpdateEvent);
     }
 
     syncDataToInstances(): void {
@@ -502,5 +514,15 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>>
         }
         const configs = WidgetEditorRenderer.toWidgetConfigs();
         setPathInUserConfig(["widgets"], configs);
+    }
+
+    static reloadAllFromInstances(): void {
+        // basically unappends and reappends all widget instances based on their order in WidgetEditorInstances
+        for (const instance of WidgetEditorRenderer.WidgetEditorInstances) {
+            instance.container.element.remove();
+        }
+        for (const instance of WidgetEditorRenderer.WidgetEditorInstances) {
+            instance.container.setParent(instance.parent);
+        }
     }
 }
