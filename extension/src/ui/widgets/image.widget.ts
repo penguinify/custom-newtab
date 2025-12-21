@@ -29,15 +29,17 @@ export class ImageWidget extends Widget<WidgetConfig<ImageData>> {
         const config: UserConfig = this.getConfig();
 
         this.pens = PenArray.fromHTML(`
+<div id="image-widget-container-${this.id}">
 <img id="image-widget-${this.id}"  
 alt="Image Widget" 
 style="object-fit: fill"
 />
+</div>
         `);
 
         if (!this.displayInstance && !this.editorInstance) {
-            this.setPosition(this.pens.getById(`image-widget-${this.id}`));
-            this.setParent(this.pens.getById(`image-widget-${this.id}`));
+            this.setPosition(this.pens.getById(`image-widget-container-${this.id}`));
+            this.setParent(this.pens.getById(`image-widget-container-${this.id}`));
         } else {
         }
 
