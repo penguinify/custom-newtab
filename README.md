@@ -7,8 +7,8 @@ whos it for? everyone who has a clear vision for how their new tab should look l
 ## Installation
 
 ### Prebuilt:
-1. go to the latest release on the left and click the zipped file
-2. Once downloaded, unzip and install the extension by opening it.
+1. go to the latest release on the left and click the .crx file
+2. Once downloaded, double click to install the extension on chrome. (you can also go download the zip file and load as unpacked in the extensions page)
 ### Manual:
 1. Clone into the repository and run `pnpm build`
 2. the unpacked or packed extension can be found in `./dist/`
