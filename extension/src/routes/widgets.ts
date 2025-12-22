@@ -21,7 +21,7 @@ export class Widgets extends AsyncRoute {
 	path = "/widgets.html";
 	components: Components = new Components();
 	widgetsDrawerComponent!: WidgetsDrawer;
-    widgetsLayerComponent!: WidgetLayer;
+	widgetsLayerComponent!: WidgetLayer;
 
 	static previewDOMRect: DOMRect;
 
@@ -45,14 +45,13 @@ export class Widgets extends AsyncRoute {
 
 `);
 
-
 		WidgetEditorRenderer.WidgetEditorInstances = [];
 
 		this.widgetsDrawerComponent = new WidgetsDrawer();
-        this.widgetsLayerComponent = new WidgetLayer();
+		this.widgetsLayerComponent = new WidgetLayer();
 		this.components.add(this.widgetsDrawerComponent);
 
-            this.components.add(this.widgetsLayerComponent);
+		this.components.add(this.widgetsLayerComponent);
 		this._addDescriptionBox();
 
 		setTimeout(() => {
@@ -93,30 +92,30 @@ export class Widgets extends AsyncRoute {
 		const main_element = document.body as HTMLElement;
 		main_element.style.fontFamily =
 			this.settings.fontFamily || "Arial, sans-serif";
-        main_element.style.overflow = "hidden";
+		main_element.style.overflow = "hidden";
 	}
 
 	private _addDescriptionBox() {
 		this.components.add(new DescriptionBox());
 	}
 
-    _renderEditorWidget(widgetConfig: WidgetConfig<any>) {
-        const widgetClass = WidgetRegistry.getWidget(widgetConfig.WidgetRecordId);
-        if (widgetClass) {
-            new WidgetEditorRenderer<typeof widgetConfig>(
-                Pen.fromElement(document.body),
-                widgetClass,
-                widgetConfig,
-            );
-        }
-    }
-    _renderEditorWidgets(widgets: WidgetConfig<any>[]) {
-        for (const widgetConfig of widgets) {
-            this._renderEditorWidget(widgetConfig);
-        }
-    }
+	_renderEditorWidget(widgetConfig: WidgetConfig<any>) {
+		const widgetClass = WidgetRegistry.getWidget(widgetConfig.WidgetRecordId);
+		if (widgetClass) {
+			new WidgetEditorRenderer<typeof widgetConfig>(
+				Pen.fromElement(document.body),
+				widgetClass,
+				widgetConfig,
+			);
+		}
+	}
+	_renderEditorWidgets(widgets: WidgetConfig<any>[]) {
+		for (const widgetConfig of widgets) {
+			this._renderEditorWidget(widgetConfig);
+		}
+	}
 	private _loadSavedWidgets() {
 		const widgets = this.settings.widgets || [];
-        this._renderEditorWidgets(widgets);
+		this._renderEditorWidgets(widgets);
 	}
 }

@@ -6,7 +6,7 @@ import {
 	type WidgetConfig,
 	type WidgetOptionsRecord,
 } from "../../types";
-import { ColorOption, TextOption } from "../widgetoptions";
+import { ColorOption, TextAreaOption, TextOption } from "../widgetoptions";
 
 export class SearchBarWidget extends Widget<WidgetConfig<TextData>> {
 	render(): PenArray {
@@ -184,7 +184,7 @@ opacity: 1;
 				"Padding Y",
 				"The vertical padding inside the search bar (e.g., '5px').",
 			),
-			customCSS: new TextOption(
+			customCSS: new TextAreaOption(
 				"Custom CSS",
 				"this is directely added to the style='' of the searchbar container element.",
 			),

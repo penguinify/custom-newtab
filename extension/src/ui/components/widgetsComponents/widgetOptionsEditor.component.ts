@@ -6,6 +6,7 @@ import { CheckboxInput } from "../inputs/checkboxInput.component";
 import { ColorPicker } from "../inputs/colorPicker.component";
 import { DropdownWithSubcomponents } from "../inputs/dropdownWithSubcomponents.component";
 import { FileInput } from "../inputs/fileInput.component";
+import { TextAreaInput } from "../inputs/textAreaInput.component";
 import { TextInput } from "../inputs/textInput.component";
 
 export class WidgetOptionsEditor implements Component {
@@ -110,6 +111,16 @@ export class WidgetOptionsEditor implements Component {
 						option,
 					).render(),
 				);
+            case "textarea":
+                this.pens.push(
+                    ...new TextAreaInput(
+                        this.pens.getById(`widget-options-${this.id}`),
+                        option,
+                    ).render(),
+                );
+                break;
+            default:
+                throw new Error(`Unsupported option type: ${option.type}`);
 		}
 		return optionPen;
 	}
