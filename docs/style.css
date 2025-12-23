@@ -1,0 +1,70 @@
+body {
+	background-color: #040404;
+	color: white;
+	font-family: "Times New Roman", Times, serif;
+	margin: 0;
+	padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-weight: normal;
+}
+
+h1 {
+	font-size: 5em;
+	margin-bottom: 0.5em;
+	line-height: 0;
+}
+
+h3 {
+	font-size: 2em;
+	margin-top: 0;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	width: 80%;
+	height: auto;
+	border: 2px solid white;
+	box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+	position: absolute;
+	z-index: -1;
+	opacity: 0.2;
+	transform: translate(-50%, -50%);
+	top: 50%;
+	left: 50%;
+}
+
+.intro {
+	width: 100%;
+	padding-left: 10%;
+	padding-top: 10%;
+}
+
+.carousel {
+	position: absolute;
+	width: 80%;
+	left: calc(10% - 50%);
+	width: max-content;
+	margin-top: 5%;
+	animation: slide 20s linear infinite;
+}
+
+.reverse {
+	animation-direction: reverse;
+}
+
+@keyframes slide {
+	0% {
+		left: -50%;
+	}
+
+	100% {
+		left: 0;
+	}
+}

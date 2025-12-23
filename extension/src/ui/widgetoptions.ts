@@ -67,16 +67,16 @@ export class FileOption extends WidgetOption<fileSaveData> {
 }
 
 export class TextAreaOption extends WidgetOption<string> {
-    intoSettingsOptions(
-        defaultValue: string,
-        onChange: (newValue: string) => void,
-    ): SettingOptions {
-        return {
-            type: "textarea",
-            label: this.label,
-            description: this.description,
-            defaultValue: defaultValue,
-            onChange: onChange,
-        };
-    }
+	intoSettingsOptions(
+		defaultValue: string,
+		onChange: (newValue: string) => void,
+	): SettingOptions {
+		return {
+			type: "textarea",
+			label: this.label,
+			description: this.description,
+			defaultValue: defaultValue,
+			onChange: onChange,
+		};
+	}
 }

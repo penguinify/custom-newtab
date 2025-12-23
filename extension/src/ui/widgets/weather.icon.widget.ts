@@ -9,7 +9,11 @@ import {
 import { applyMixins } from "../../utils/mixins";
 import { TextOptionMixin } from "../widgetmixins";
 import { TextOption } from "../widgetoptions";
-import { getCachedWeather, setCachedWeather, fetchWeather } from "./weather.cache";
+import {
+	getCachedWeather,
+	setCachedWeather,
+	fetchWeather,
+} from "./weather.cache";
 
 export class WeatherIconWidget extends Widget<WeatherIconData> {
 	private iconDisplayPen!: Pen<Elements>;
@@ -20,19 +24,25 @@ export class WeatherIconWidget extends Widget<WeatherIconData> {
 
 		this.pens = PenArray.fromHTML(`
             <div id="weather-icon-widget-${this.id}" style="display: flex; align-items: center;">
-                <img id="weather-icon-${this.id}" class="w-12 h-12" />
+                <img id="weather-icon-${this.id}" class="w-12 h-12" draggable="false" />
             </div>
         `);
 
 		this.iconDisplayPen = this.pens.getById(`weather-icon-${this.id}`);
 
-		this.applyTextOptions(this.pens.getById(`weather-icon-widget-${this.id}`), config);
-
 		this._updateWeather();
 
-		this.intervalId = window.setInterval(() => {
-			this._updateWeather();
-		}, 15 * 60 * 1000);
+		this.intervalId = window.setInterval(
+			() => {
+				this._updateWeather();
+			},
+			15 * 60 * 1000,
+		);
+
+        if (!this.displayInstance && !this.editorInstance) {
+            this.setPosition(this.pens.getById(`weather-icon-widget-${this.id}`));
+            this.setParent(this.pens.getById(`weather-icon-widget-${this.id}`));
+        }
 
 		return this.pens;
 	}
@@ -65,25 +75,19 @@ export class WeatherIconWidget extends Widget<WeatherIconData> {
 			enabled: true,
 			position: { x: 0.5, y: 0, scaleX: 1, scaleY: 1 },
 			data: {
-				units: "imperial",
 				owmApiKey: "",
 				customIcons: {},
-				...TextOptionMixin.defaultOptions(),
 			},
 		};
 	}
 
 	static getWidgetOptionsRecord(): WidgetOptionsRecord {
 		return {
-			units: new TextOption(
-				"Units",
-				"Temperature units: 'imperial' (F) or 'metric' (C).",
-			),
+
 			owmApiKey: new TextOption(
 				"OpenWeatherMap API Key",
 				"Required for fallback weather service.",
 			),
-			...TextOptionMixin.getWidgetOptionsRecord(),
 		};
 	}
 }
@@ -103,6 +107,3 @@ export type WeatherIconData = WidgetConfig<{
 	fontWeight: string;
 }>;
 
-export interface WeatherIconWidget extends TextOptionMixin {}
-
-applyMixins(WeatherIconWidget, [TextOptionMixin]);

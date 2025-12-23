@@ -27,6 +27,7 @@ export class NewTab extends AsyncRoute {
 		document.body.style.padding = "0";
 		document.body.style.height = "100vh";
 		document.body.style.width = "100vw";
+        document.body.style.userSelect = "none";
 
 		this.pensAsync = this.renderAsync();
 	}

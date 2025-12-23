@@ -9,7 +9,11 @@ import {
 import { applyMixins } from "../../utils/mixins";
 import { TextOptionMixin } from "../widgetmixins";
 import { TextOption } from "../widgetoptions";
-import { getCachedWeather, setCachedWeather, fetchWeather } from "./weather.cache";
+import {
+	getCachedWeather,
+	setCachedWeather,
+	fetchWeather,
+} from "./weather.cache";
 
 export class WeatherTempWidget extends Widget<WeatherTempData> {
 	private tempDisplayPen!: Pen<Elements>;
@@ -26,14 +30,24 @@ export class WeatherTempWidget extends Widget<WeatherTempData> {
 
 		this.tempDisplayPen = this.pens.getById(`temp-display-${this.id}`);
 
-		this.applyTextOptions(this.pens.getById(`weather-temp-widget-${this.id}`), config);
+		this.applyTextOptions(
+			this.pens.getById(`weather-temp-widget-${this.id}`),
+			config,
+		);
 
 		this._updateWeather();
 
-		this.intervalId = window.setInterval(() => {
-			this._updateWeather();
-		}, 15 * 60 * 1000);
+		this.intervalId = window.setInterval(
+			() => {
+				this._updateWeather();
+			},
+			15 * 60 * 1000,
+		);
 
+        if (!this.displayInstance && !this.editorInstance) {
+            this.setPosition(this.pens.getById(`weather-temp-widget-${this.id}`));
+            this.setParent(this.pens.getById(`weather-temp-widget-${this.id}`));
+        }
 		return this.pens;
 	}
 

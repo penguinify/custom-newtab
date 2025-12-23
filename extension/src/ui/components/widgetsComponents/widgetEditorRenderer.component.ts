@@ -199,13 +199,13 @@ export class WidgetEditorRenderer<T extends WidgetConfig<Object>>
 					),
 				);
 			} else if (currentValue instanceof TextAreaOption) {
-                widgetOptions.push(
-                    currentValue.intoSettingsOptions(
-                        this.data.data[key as string] as string,
-                        this.changeData.bind(this, key),
-                    ),
-                );
-            }
+				widgetOptions.push(
+					currentValue.intoSettingsOptions(
+						this.data.data[key as string] as string,
+						this.changeData.bind(this, key),
+					),
+				);
+			}
 		}
 
 		console.log("Generated widget options:", widgetOptions);

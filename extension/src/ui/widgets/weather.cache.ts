@@ -54,7 +54,11 @@ export function setCachedWeather(data: WeatherResult) {
 	);
 }
 
-export async function fetchWeather(units: "imperial" | "metric", owmApiKey: string, customIcons: Record<string, string>): Promise<WeatherResult> {
+export async function fetchWeather(
+	units: "imperial" | "metric",
+	owmApiKey: string,
+	customIcons: Record<string, string>,
+): Promise<WeatherResult> {
 	return new Promise((resolve, reject) => {
 		if (!navigator.geolocation) {
 			reject("Geolocation unavailable");
@@ -64,11 +68,22 @@ export async function fetchWeather(units: "imperial" | "metric", owmApiKey: stri
 			async (position) => {
 				const { latitude, longitude } = position.coords;
 				try {
-					const nws = await fetchNWSWeather(latitude, longitude, units, customIcons);
+					const nws = await fetchNWSWeather(
+						latitude,
+						longitude,
+						units,
+						customIcons,
+					);
 					resolve(nws);
 				} catch {
 					try {
-						const owm = await fetchOWMWeather(latitude, longitude, units, owmApiKey, customIcons);
+						const owm = await fetchOWMWeather(
+							latitude,
+							longitude,
+							units,
+							owmApiKey,
+							customIcons,
+						);
 						resolve(owm);
 					} catch {
 						reject("Weather fetch failed");
@@ -80,7 +95,12 @@ export async function fetchWeather(units: "imperial" | "metric", owmApiKey: stri
 	});
 }
 
-async function fetchNWSWeather(lat: number, lon: number, units: "imperial" | "metric", customIcons: Record<string, string>): Promise<WeatherResult> {
+async function fetchNWSWeather(
+	lat: number,
+	lon: number,
+	units: "imperial" | "metric",
+	customIcons: Record<string, string>,
+): Promise<WeatherResult> {
 	const pointsUrl = `https://api.weather.gov/points/${lat.toFixed(4)},${lon.toFixed(4)}`;
 	const pointsResponse = await fetch(pointsUrl);
 	if (!pointsResponse.ok) throw new Error("NWS points request failed");
@@ -106,11 +126,19 @@ async function fetchNWSWeather(lat: number, lon: number, units: "imperial" | "me
 	return {
 		temp: Math.round(temp),
 		condition: currentForecast.shortForecast,
-		icon: getIcon(currentForecast.shortForecast, customIcons) || currentForecast.icon,
+		icon:
+			getIcon(currentForecast.shortForecast, customIcons) ||
+			currentForecast.icon,
 	};
 }
 
-async function fetchOWMWeather(lat: number, lon: number, units: "imperial" | "metric", owmApiKey: string, customIcons: Record<string, string>): Promise<WeatherResult> {
+async function fetchOWMWeather(
+	lat: number,
+	lon: number,
+	units: "imperial" | "metric",
+	owmApiKey: string,
+	customIcons: Record<string, string>,
+): Promise<WeatherResult> {
 	if (!owmApiKey) throw new Error("OWM API key needed");
 	const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${owmApiKey}&units=${units}`;
 
@@ -121,12 +149,16 @@ async function fetchOWMWeather(lat: number, lon: number, units: "imperial" | "me
 	return {
 		temp: Math.round(data.main.temp),
 		condition: data.weather[0].main,
-		icon: getIcon(data.weather[0].main, customIcons) ||
+		icon:
+			getIcon(data.weather[0].main, customIcons) ||
 			`https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`,
 	};
 }
 
-function getIcon(condition: string, customIcons: Record<string, string>): string | undefined {
+function getIcon(
+	condition: string,
+	customIcons: Record<string, string>,
+): string | undefined {
 	const lowerCaseCondition = condition.toLowerCase();
 	for (const key in customIcons) {
 		if (lowerCaseCondition.includes(key.toLowerCase())) {
@@ -135,4 +167,3 @@ function getIcon(condition: string, customIcons: Record<string, string>): string
 	}
 	return undefined;
 }
-

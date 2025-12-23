@@ -17,7 +17,6 @@ import { CheckboxOption, TextOption } from "../widgetoptions";
 
 export class CircleWidget extends Widget<WidgetConfig<CircleData>> {
 	render(): PenArray {
-
 		this.pens = PenArray.fromHTML(`
         <div id="circle-widget-${this.id}" style="border-radius: ${this.data.data.borderRadius}; box-sizing: border-box; transform-origin: top left; width: ${this.data.data.width}; height: ${this.data.data.height};">
 
@@ -25,10 +24,10 @@ export class CircleWidget extends Widget<WidgetConfig<CircleData>> {
         </div>
         `);
 
-        const root = this.pens.getById(`circle-widget-${this.id}`);
+		const root = this.pens.getById(`circle-widget-${this.id}`);
 
-        this.applyOutlineOptions(root, this.getConfig());
-        this.applyBackgroundOptions(root, this.getConfig());
+		this.applyOutlineOptions(root, this.getConfig());
+		this.applyBackgroundOptions(root, this.getConfig());
 
 		if (!this.displayInstance && !this.editorInstance) {
 			this.setPosition(root);
@@ -50,9 +49,9 @@ export class CircleWidget extends Widget<WidgetConfig<CircleData>> {
 				scaleY: 0.2,
 			},
 			data: {
-                borderRadius: "50%",
-                width: "100px",
-                height: "100px",
+				borderRadius: "50%",
+				width: "100px",
+				height: "100px",
 				...BackgroundOptionMixin.defaultOptions(),
 				...OutlineOptionMixin.defaultOptions(),
 			},
@@ -61,18 +60,12 @@ export class CircleWidget extends Widget<WidgetConfig<CircleData>> {
 
 	static getWidgetOptionsRecord(): WidgetOptionsRecord {
 		return {
-            borderRadius: new TextOption(
-                "Border Radius",
-                "The border radius of the circle (e.g., 50% for a perfect circle), BUT it can be changed to make a rounded rectangle",
-            ),
-            width: new TextOption(
-                "Width",
-                "The width of the circle widget.",
-            ),
-            height: new TextOption(
-                "Height",
-                "The height of the circle widget.",
-            ),
+			borderRadius: new TextOption(
+				"Border Radius",
+				"The border radius of the circle (e.g., 50% for a perfect circle), BUT it can be changed to make a rounded rectangle",
+			),
+			width: new TextOption("Width", "The width of the circle widget."),
+			height: new TextOption("Height", "The height of the circle widget."),
 			...BackgroundOptionMixin.getWidgetOptionsRecord(),
 			...OutlineOptionMixin.getWidgetOptionsRecord(),
 		};
@@ -86,15 +79,12 @@ export default register();
 
 export type CircleData = {
 	backgroundColor: string;
-    borderRadius: string;
+	borderRadius: string;
 	outlineColor: string;
-    width: string;
-    height: string;
+	width: string;
+	height: string;
 	outlineWidth: number;
 	[key: string]: unknown;
 };
 
-applyMixins(CircleWidget, [
-	BackgroundOptionMixin,
-	OutlineOptionMixin,
-]);
+applyMixins(CircleWidget, [BackgroundOptionMixin, OutlineOptionMixin]);

@@ -9,7 +9,11 @@ import {
 import { applyMixins } from "../../utils/mixins";
 import { TextOptionMixin } from "../widgetmixins";
 import { TextOption } from "../widgetoptions";
-import { getCachedWeather, setCachedWeather, fetchWeather } from "./weather.cache";
+import {
+	getCachedWeather,
+	setCachedWeather,
+	fetchWeather,
+} from "./weather.cache";
 
 export class WeatherConditionWidget extends Widget<WeatherConditionData> {
 	private conditionDisplayPen!: Pen<Elements>;
@@ -24,15 +28,28 @@ export class WeatherConditionWidget extends Widget<WeatherConditionData> {
             </div>
         `);
 
-		this.conditionDisplayPen = this.pens.getById(`condition-display-${this.id}`);
+		this.conditionDisplayPen = this.pens.getById(
+			`condition-display-${this.id}`,
+		);
 
-		this.applyTextOptions(this.pens.getById(`weather-condition-widget-${this.id}`), config);
+		this.applyTextOptions(
+			this.pens.getById(`weather-condition-widget-${this.id}`),
+			config,
+		);
 
 		this._updateWeather();
 
-		this.intervalId = window.setInterval(() => {
-			this._updateWeather();
-		}, 15 * 60 * 1000);
+		this.intervalId = window.setInterval(
+			() => {
+				this._updateWeather();
+			},
+			15 * 60 * 1000,
+		);
+
+        if (!this.displayInstance && !this.editorInstance) {
+            this.setPosition(this.pens.getById(`weather-condition-widget-${this.id}`));
+            this.setParent(this.pens.getById(`weather-condition-widget-${this.id}`));
+        }
 
 		return this.pens;
 	}
@@ -89,7 +106,10 @@ export class WeatherConditionWidget extends Widget<WeatherConditionData> {
 }
 
 function register() {
-	WidgetRegistry.registerWidget("weather-condition-widget", WeatherConditionWidget);
+	WidgetRegistry.registerWidget(
+		"weather-condition-widget",
+		WeatherConditionWidget,
+	);
 }
 
 export default register();

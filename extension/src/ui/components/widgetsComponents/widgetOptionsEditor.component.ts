@@ -63,6 +63,7 @@ export class WidgetOptionsEditor implements Component {
 
 	private _createOption(option: SettingOptions): PenArray {
 		const optionPen: PenArray = new PenArray();
+        console.log("Creating option:", option);
 		switch (option.type) {
 			case "colorpicker":
 				this.pens.push(
@@ -111,16 +112,15 @@ export class WidgetOptionsEditor implements Component {
 						option,
 					).render(),
 				);
-            case "textarea":
-                this.pens.push(
-                    ...new TextAreaInput(
-                        this.pens.getById(`widget-options-${this.id}`),
-                        option,
-                    ).render(),
-                );
                 break;
-            default:
-                throw new Error(`Unsupported option type: ${option.type}`);
+			case "textarea":
+				this.pens.push(
+					...new TextAreaInput(
+						this.pens.getById(`widget-options-${this.id}`),
+						option,
+					).render(),
+				);
+				break;
 		}
 		return optionPen;
 	}

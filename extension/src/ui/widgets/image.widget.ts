@@ -29,9 +29,10 @@ export class ImageWidget extends Widget<WidgetConfig<ImageData>> {
 
 		this.pens = PenArray.fromHTML(`
 <div id="image-widget-container-${this.id}">
-<img id="image-widget-${this.id}"  
+<img id="image-widget-${this.id}" 
 alt="Image Widget" 
 style="object-fit: fill"
+draggable="false"
 />
 </div>
         `);

@@ -17,7 +17,7 @@ export class TextAreaInput implements Component {
 	constructor(parent: Pen<Elements>, options: SettingOptions) {
 		this.parent = parent;
 		if (options.type !== "textarea") {
-			throw new Error("Invalid option type for TextAreaInput component");
+			throw new Error("Invalid option type for TextAreaInput component: " + options.type);
 		} else {
 			this.settings = options;
 		}
