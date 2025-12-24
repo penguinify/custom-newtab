@@ -1,21 +1,22 @@
-Custom Newtab License (Non-Commercial, No Redistribution)
+Custom Newtab License (Non-Commercial)
 
 Copyright (C) 2025 penguinify
 
-Permission is hereby granted to any person obtaining a copy of this software and associated files (the "Software") to use, study, and modify the Software for personal, non-commercial purposes only.
+Permission is hereby granted to any person obtaining a copy of this software and associated files (the "Software") to use, study, modify, and share the Software for non-commercial purposes only, subject to the conditions below.
 
 Allowed:
 - Personal use.
-- Private modifications and private forks.
-- Running the Software locally for personal use.
+- Modification of the Software.
+- Public and private forks.
+- Public sharing of the Software and modified versions, provided there is no commercial use.
 
 Not Allowed:
 - Commercial use of any kind.
-- Selling, licensing, or monetizing the Software.
-- Publishing, distributing, sublicensing, or redistributing the Software or modified versions.
-- Uploading the Software or modified versions to any app store, extension store, or marketplace, including but not limited to the Chrome Web Store.
+- Selling, licensing, or monetizing the Software or modified versions.
+- Placing advertisements, tracking, or paid features in the Software.
+- Uploading the Software or modified versions to any app store, extension store, or marketplace for commercial gain, including the Chrome Web Store.
 - Using the name "custom-newtab" or associated branding without explicit written permission.
 
-Any use outside the permissions above requires explicit written permission from the copyright holder.
+Any use that directly or indirectly generates revenue is considered commercial use and is prohibited unless explicit written permission is granted by the copyright holder.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY.
