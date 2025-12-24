@@ -3,7 +3,6 @@
 whos it for? everyone who has a clear vision for how their new tab should look like, but is limited by the capabilities of their browser.
 
 
-
 ## Installation
 
 ### Prebuilt:
