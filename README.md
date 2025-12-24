@@ -1,8 +1,8 @@
 
 # custom-newtab
 whos it for? everyone who has a clear vision for how their new tab should look like, but is limited by the capabilities of their browser.
-
-
+<br>
+(this is source-avaliable meaning: you can do anything EXCEPT make money with it and redistribute it on the chrome webstore.)
 ## Installation
 
 ### Prebuilt:
